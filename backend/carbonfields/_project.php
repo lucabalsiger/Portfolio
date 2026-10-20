@@ -24,7 +24,11 @@ Container::make('post_meta', 'Projekt')
             ->set_help_text('Bilder lassen sich per Drag-and-drop sortieren. Alt-Text in der Mediathek setzen.'),
     ])
     ->add_tab('Link', [
+        Field::make('text', 'link_label', 'Linktext')
+            ->set_width(33)
+            ->set_help_text('z. B. «Zur Live-Seite». Leer: «Projekt ansehen»'),
         Field::make('text', 'link', 'Externer Link (optional)')
+            ->set_width(67)
             ->set_attribute('type', 'url')
             ->set_help_text('Vollständige Adresse mit https://'),
     ]);

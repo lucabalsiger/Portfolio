@@ -26,10 +26,23 @@ function get_project_categories(int $id): array {
     return array_map(fn($term) => $term->name, $terms);
 }
 
-// -> Bilder einer Galerie laden
+// -> Galeriebilder mit Vorschau- und Grossversion für die Lightbox
 function get_project_gallery(int $id, string $field): array {
     $ids = carbon_get_post_meta($id, $field) ?: [];
-    return array_map(fn($image_id) => get_media_by_id($image_id, 'l'), $ids);
+    $images = [];
+    foreach ($ids as $image_id) {
+        $thumb = wp_get_attachment_image_src((int) $image_id, 'large');
+        $full = wp_get_attachment_image_src((int) $image_id, 'full');
+        if (!$thumb || !$full) {
+            continue;
+        }
+        $images[] = [
+            'thumb' => $thumb[0],
+            'full' => $full[0],
+            'alt' => get_post_meta((int) $image_id, '_wp_attachment_image_alt', true) ?: '',
+        ];
+    }
+    return $images;
 }
 
 // -> Kurzdaten für Teaser in der Projektübersicht
@@ -53,16 +66,11 @@ function get_project_by_id(int $id): array {
         'number' => get_project_number($id),
         'image' => $image ? get_media_by_id($image, 'xl') : false,
         'year' => carbon_get_post_meta($id, 'year'),
-        'context' => carbon_get_post_meta($id, 'context'),
-        'role' => carbon_get_post_meta($id, 'role'),
-        'lead' => carbon_get_post_meta($id, 'lead'),
+        'subtitle' => carbon_get_post_meta($id, 'subtitle'),
+        'description' => carbon_get_post_meta($id, 'description'),
+        'gallery' => get_project_gallery($id, 'gallery'),
         'link' => carbon_get_post_meta($id, 'link'),
+        'link_label' => carbon_get_post_meta($id, 'link_label') ?: 'Projekt ansehen',
         'categories' => get_project_categories($id),
-        'concept' => carbon_get_post_meta($id, 'concept'),
-        'goal' => carbon_get_post_meta($id, 'goal'),
-        'process' => carbon_get_post_meta($id, 'process'),
-        'process_images' => get_project_gallery($id, 'process_images'),
-        'outcome' => carbon_get_post_meta($id, 'outcome'),
-        'outcome_images' => get_project_gallery($id, 'outcome_images'),
     ];
 }

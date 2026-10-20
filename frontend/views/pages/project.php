@@ -1,17 +1,7 @@
 <?php
 $project = get_project_by_id(get_the_ID());
-$sections = [
-    ['title' => 'konzept', 'text' => $project['concept'], 'images' => []],
-    ['title' => 'ziel', 'text' => $project['goal'], 'images' => []],
-    ['title' => 'prozess', 'text' => $project['process'], 'images' => $project['process_images']],
-    ['title' => 'ergebnis', 'text' => $project['outcome'], 'images' => $project['outcome_images']],
-];
-$meta = array_filter([
-    'Jahr' => $project['year'],
-    'Kontext' => $project['context'],
-    'Rolle' => $project['role'],
-    'Kategorie' => implode(', ', $project['categories']),
-]);
+// Unterzeile: Jahr und Untertitel, leere Werte werden weggelassen
+$subline = implode(' · ', array_filter([$project['year'], $project['subtitle']]));
 ?>
 <main data-page="project">
     <section class="project-hero">
@@ -20,30 +10,24 @@ $meta = array_filter([
         <?php if ($project['image']): ?>
             <img class="image" src="<?= esc_url($project['image']['src']) ?>" alt="<?= esc_attr($project['image']['alt']) ?>">
         <?php endif; ?>
-        <?php if ($project['lead']): ?>
-            <p class="lead"><?= esc_html($project['lead']) ?></p>
-        <?php endif; ?>
-        <?php if ($meta): ?>
-            <dl class="meta">
-                <?php foreach ($meta as $label => $value): ?>
-                    <div><dt><?= esc_html($label) ?></dt><dd><?= esc_html($value) ?></dd></div>
-                <?php endforeach; ?>
-            </dl>
+        <?php if ($subline): ?>
+            <p class="lead"><?= esc_html($subline) ?></p>
         <?php endif; ?>
     </section>
 
-    <?php foreach ($sections as $section): ?>
-        <?php if (!$section['text'] && !$section['images']) continue; ?>
+    <?php if ($project['description'] || $project['gallery']): ?>
         <section class="project-section">
-            <h2 class="section-title"><?= esc_html($section['title']) ?></h2>
-            <div class="section-text"><?php the_rich_text($section['text']); ?></div>
-            <?php get_template_part('frontend/views/partials/gallery', null, ['images' => $section['images']]); ?>
+            <?php if ($project['description']): ?>
+                <h2 class="section-title">beschrieb</h2>
+                <div class="section-text"><?php the_rich_text($project['description']); ?></div>
+            <?php endif; ?>
+            <?php get_template_part('frontend/views/partials/lightbox-gallery', null, ['images' => $project['gallery']]); ?>
         </section>
-    <?php endforeach; ?>
+    <?php endif; ?>
 
     <?php if ($project['link']): ?>
         <p class="project-link">
-            <a href="<?= esc_url($project['link']) ?>"<?= external_link_attrs($project['link']) ?>>Projekt ansehen</a>
+            <a href="<?= esc_url($project['link']) ?>"<?= external_link_attrs($project['link']) ?>><?= esc_html($project['link_label']) ?></a>
         </p>
     <?php endif; ?>
 </main>
