@@ -732,3 +732,56 @@ ul {
         font-size: 1.25rem;
     }
 }
+
+/* Galerie mit Lightbox auf der Projektseite */
+[data-page="project"] .project-section .lightbox-gallery {
+    grid-column: 1 / -1;
+}
+.gallery-item {
+    display: block;
+    cursor: zoom-in;
+}
+.lightbox {
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: var(--gap-around);
+    border: 0;
+    background: rgb(38 36 34 / 0.95);
+    color: var(--color-paper);
+}
+.lightbox[open] {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.lightbox::backdrop {
+    background: transparent;
+}
+.lightbox-image {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    object-fit: contain;
+}
+.lightbox button {
+    background: none;
+    border: 0;
+    color: inherit;
+    font: var(--font-h2);
+    cursor: pointer;
+    padding: 8px;
+}
+.lightbox button:hover {
+    color: var(--color-accent);
+}
+.lightbox-close {
+    position: absolute;
+    top: 8px;
+    right: 16px;
+}
+.lightbox[data-single] :is(.lightbox-prev, .lightbox-next) {
+    display: none;
+}
