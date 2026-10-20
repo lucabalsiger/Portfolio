@@ -1,4 +1,5 @@
 <?php
+// Rechtstext-Modul: für Impressum und Datenschutzerklärung.
 $data = $args['data'];
 ?>
 <section data-module="legal-text">

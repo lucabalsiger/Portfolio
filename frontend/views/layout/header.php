@@ -1,4 +1,5 @@
 <?php
+// Seitenheader: Logo/Markenname, animierte Punkte, Hauptnavigation, Dark-Mode-Schalter.
 $logo = get_globals_logo();
 $menu_items = get_menu_by_slug('main');
 ?>

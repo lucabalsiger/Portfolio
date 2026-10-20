@@ -45,7 +45,7 @@ document.querySelectorAll('[data-module]:not([data-module="overview-projects"]),
     revealObserver.observe(el);
 });
 
-// Text scramble on brand name hover
+// Text scramble on brand name hover (nur wenn kein Logo-Bild vorhanden)
 const brand = document.querySelector('[data-layout="header"] .brand');
 if (brand && !brand.querySelector('img')) {
     const textNode = brand.firstChild;

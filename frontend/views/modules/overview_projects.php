@@ -1,4 +1,5 @@
 <?php
+// Projektübersicht. $data['projects'] ist bereits die fertige Liste (aufbereitet in _modules.php).
 $data = $args['data'];
 ?>
 <section data-module="overview-projects">

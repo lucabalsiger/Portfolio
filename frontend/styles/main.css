@@ -1,7 +1,7 @@
 @import "_fonts.css";
 @import "_resets.css";
 
-/* Definition of base styles. */
+/* Designsystem: Farben, Abstände und Typografie-Variablen, die im ganzen Theme genutzt werden */
 :root {
     /* colors */
     --color-paper: #e7e3d9;
@@ -24,7 +24,7 @@
     --font-small: 400 0.8125rem/1.5 var(--font-family);
 }
 
-/* Dark mode toggle state */
+/* Dark Mode: wird via JS gesetzt (data-theme="dark" auf <html>), Farben werden über Custom Properties überschrieben */
 [data-theme="dark"] [data-layout="header"] .theme-toggle {
     background: var(--color-ink);
     transform: rotate(180deg);
@@ -131,7 +131,7 @@ ul {
     letter-spacing: -0.045em;
 }
 
-/* Styling of all available layout components. */
+/* Layout-Komponenten: Header und Footer der Webseite */
 [data-layout="header"] {
     position: sticky;
     top: 0;
@@ -264,7 +264,7 @@ ul {
     & a:hover { color: color-mix(in srgb, var(--color-paper) 80%, transparent); }
 }
 
-/* Styling of all available page components. */
+/* Seiten-Komponenten: Basis-Stile für Seiten- und Projektansicht */
 [data-page] {
     width: 100%;
 }
@@ -341,7 +341,7 @@ ul {
     }
 }
 
-/* Styling of all available module components. */
+/* Modul-Komponenten: Basis-Stile für alle Module (Abstände, Breite) */
 [data-module] {
     overflow: clip;
     position: relative;
@@ -410,6 +410,7 @@ ul {
     }
     & .intro-line.color-ink   { --line-color: var(--color-ink);  }
     & .intro-line.color-paper { --line-color: #ffffff;           }
+    /* oklch(from var(--line-color) l c h / 0) = transparente Version der Linienfarbe (relative Color-Syntax) */
     & .intro-line.is-filled:hover {
         color: oklch(from var(--line-color) l c h / 0);
         -webkit-text-stroke: var(--intro-stroke, 0.025em) var(--line-color);
@@ -598,7 +599,7 @@ ul {
     }
 }
 
-/* Styling of all available teaser components. */
+/* Teaser-Komponenten: Projektkacheln in der Übersicht */
 .teaser-project {
     text-decoration: none;
     & .image-wrap {
@@ -751,9 +752,9 @@ ul {
     }
 }
 
-/* Styling of utility classes, can be added anywhere in the project. */
+/* Utility: benutzerdefinierter Cursor, Scroll-Reveal-Animation */
 
-/* Custom cursor */
+/* Custom cursor — nur auf Geräten mit Maus (hover: hover) */
 @media (hover: hover) and (pointer: fine) {
     html { cursor: none; }
     a, button, .filmstrip, .filmstrip-item { cursor: none; }
@@ -842,7 +843,7 @@ ul {
     [data-page="project"] .project-section {
         grid-template-columns: 1fr;
     }
-    /* Erhöhte Spezifität, damit die Platzierungen der Desktop-Regeln sicher überschrieben werden */
+    /* Spezifität (0,3,0) schlägt die Desktop-Grid-Platzierungen — dreifaches Attribut ist der einfachste Weg */
     [data-module][data-module][data-module] > *,
     [data-page][data-page] .project-hero > *,
     [data-page][data-page] .project-section > * {

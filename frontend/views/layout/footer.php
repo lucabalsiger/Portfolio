@@ -1,4 +1,5 @@
 <?php
+// Seitenfooter: Footertext, Socials, rechtliche Links (konfiguriert via Globales / Menus).
 $email = get_globals_email();
 $socials = get_globals_socials();
 $legal_items = get_menu_by_slug('legals');

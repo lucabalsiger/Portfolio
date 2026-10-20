@@ -1,4 +1,5 @@
 <?php
+// Statement-Modul: grosse, auffällige Textzeile für kurze Aussagen.
 $data = $args['data'];
 ?>
 <section data-module="statement">

@@ -1,3 +1,4 @@
+<?php /* Öffnender HTML-Teil: doctype, head, body-start. wp_head() fügt Styles, Scripts und Meta-Tags ein. */ ?>
 <!DOCTYPE html>
 <html lang="<?php bloginfo('language') ?>">
 <head>

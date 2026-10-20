@@ -1,4 +1,6 @@
-<?php get_header() ?>
+<?php
+// Template für Projektdetailseiten (Custom Post Type «project»).
+get_header() ?>
 <?php get_template_part('frontend/views/layout/header') ?>
 <main><?php get_template_part('frontend/views/pages/project') ?></main>
 <?php get_template_part('frontend/views/layout/footer') ?>

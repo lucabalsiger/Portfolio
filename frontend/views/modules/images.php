@@ -1,4 +1,5 @@
 <?php
+// Bilder-Modul: einfache Bildergalerie via gallery-Partial.
 $data = $args['data'];
 ?>
 <section data-module="images">

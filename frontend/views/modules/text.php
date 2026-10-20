@@ -1,4 +1,5 @@
 <?php
+// Zweispaltiges Text-Modul: optionaler Titel links, Fliesstext rechts.
 $data = $args['data'];
 ?>
 <section data-module="text">

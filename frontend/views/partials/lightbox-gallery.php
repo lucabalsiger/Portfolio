@@ -1,4 +1,6 @@
 <?php
+// Filmstrip-Galerie mit Lightbox. Autoplay alle 3 s, pausiert bei Hover und im Hintergrund-Tab.
+// Jede Galerie bringt ihr eigenes Inline-Script mit (daher mehrere Galerien pro Seite möglich).
 $images = $args['images'] ?? [];
 if (!$images) return;
 $count = count($images);

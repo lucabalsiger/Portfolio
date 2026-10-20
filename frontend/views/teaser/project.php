@@ -1,4 +1,5 @@
 <?php
+// Projektkachel für die Übersicht. Bild, Tags und Titel werden leicht angewinkelt dargestellt.
 $project = $args['data'];
 ?>
 <a class="teaser-project" href="<?= esc_url($project['url']) ?>">

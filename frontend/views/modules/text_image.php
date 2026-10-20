@@ -1,4 +1,5 @@
 <?php
+// Text-Bild-Modul. data-image-position steuert per CSS ob das Bild links oder rechts erscheint.
 $data = $args['data'];
 ?>
 <section data-module="text-image" data-image-position="<?= esc_attr($data['image_position']) ?>">

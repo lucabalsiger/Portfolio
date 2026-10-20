@@ -1,4 +1,6 @@
 <?php
+// Kontaktmodul: Titel, Text, optionales Bild, klickbares E-Mail-Signet.
+// E-Mail wird via antispambot() verschleiert, damit Crawler sie nicht abgreifen.
 $data = $args['data'];
 ?>
 <section data-module="contact">

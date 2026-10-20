@@ -1,4 +1,5 @@
 <?php
+// Hero für Unterseiten: Titel und optionaler Untertitel.
 $data = $args['data'];
 ?>
 <section data-module="hero-default">
