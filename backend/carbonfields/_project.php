@@ -16,6 +16,8 @@ Container::make('post_meta', 'Projekt')
             ->set_help_text('z. B. «Fotografie · Adobe Photoshop · Modul IM5»'),
     ])
     ->add_tab('Beschrieb', [
+        Field::make('text', 'description_title', 'Titel')
+            ->set_help_text('z. B. «über das projekt». Leer: «beschrieb»'),
         Field::make('rich_text', 'description', 'Beschrieb'),
     ])
     ->add_tab('Galerie', [

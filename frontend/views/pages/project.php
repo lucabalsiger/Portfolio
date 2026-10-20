@@ -18,7 +18,7 @@ $subline = implode(' · ', array_filter([$project['year'], $project['subtitle']]
     <?php if ($project['description'] || $project['gallery']): ?>
         <section class="project-section">
             <?php if ($project['description']): ?>
-                <h2 class="section-title">beschrieb</h2>
+                <h2 class="section-title"><?= esc_html($project['description_title']) ?></h2>
                 <div class="section-text"><?php the_rich_text($project['description']); ?></div>
             <?php endif; ?>
             <?php get_template_part('frontend/views/partials/lightbox-gallery', null, ['images' => $project['gallery']]); ?>

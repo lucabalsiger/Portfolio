@@ -68,6 +68,7 @@ function get_project_by_id(int $id): array {
         'year' => carbon_get_post_meta($id, 'year'),
         'subtitle' => carbon_get_post_meta($id, 'subtitle'),
         'description' => carbon_get_post_meta($id, 'description'),
+        'description_title' => carbon_get_post_meta($id, 'description_title') ?: 'beschrieb',
         'gallery' => get_project_gallery($id, 'gallery'),
         'link' => carbon_get_post_meta($id, 'link'),
         'link_label' => carbon_get_post_meta($id, 'link_label') ?: 'Projekt ansehen',

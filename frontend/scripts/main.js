@@ -110,4 +110,9 @@ if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
         el.addEventListener('mouseenter', () => cursor.classList.add('cursor--hover'));
         el.addEventListener('mouseleave', () => cursor.classList.remove('cursor--hover'));
     });
+
+    document.querySelectorAll('.filmstrip-item').forEach(el => {
+        el.addEventListener('mouseenter', () => cursor.classList.add('cursor--zoom'));
+        el.addEventListener('mouseleave', () => cursor.classList.remove('cursor--zoom'));
+    });
 }
