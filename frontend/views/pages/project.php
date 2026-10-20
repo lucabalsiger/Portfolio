@@ -6,7 +6,6 @@ $subline = implode(' · ', array_filter([$project['year'], $project['subtitle']]
 <main data-page="project">
     <section class="project-hero">
         <h1 class="title"><?= esc_html($project['title']) ?></h1>
-        <span class="number"><?= esc_html($project['number']) ?>.</span>
         <?php if ($project['image']): ?>
             <img class="image" src="<?= esc_url($project['image']['src']) ?>" alt="<?= esc_attr($project['image']['alt']) ?>">
         <?php endif; ?>

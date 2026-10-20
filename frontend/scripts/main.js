@@ -1,3 +1,34 @@
+// Hero intro: fit each line to container width, respecting size-factor and stretch-x
+(function fitIntroLines() {
+    const container = document.querySelector('[data-module="hero-front"] .intro-display');
+    if (!container) return;
+    function fit() {
+        // On mobile CSS handles font sizing; skip JS scaling
+        if (window.innerWidth <= 768) {
+            container.querySelectorAll('.intro-line').forEach(line => {
+                line.style.fontSize = '';
+                line.style.transform = '';
+            });
+            container.classList.add('is-fitted');
+            return;
+        }
+        const w = container.offsetWidth;
+        container.querySelectorAll('.intro-line').forEach(line => {
+            line.style.fontSize = '100px';
+            line.style.transform = 'none';
+            const scrollW = line.scrollWidth;
+            const cs = getComputedStyle(line);
+            const sizeFactor = parseFloat(cs.getPropertyValue('--size-factor')) || 1;
+            const stretchX   = parseFloat(cs.getPropertyValue('--stretch-x'))   || 1;
+            line.style.fontSize  = (100 * w * sizeFactor / (stretchX * scrollW)) + 'px';
+            line.style.transform = stretchX !== 1 ? `scaleX(${stretchX})` : '';
+        });
+        container.classList.add('is-fitted');
+    }
+    document.fonts.ready.then(fit);
+    window.addEventListener('resize', fit);
+})();
+
 // Scroll reveal
 document.body.classList.add('js');
 

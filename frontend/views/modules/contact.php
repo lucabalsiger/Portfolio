@@ -12,8 +12,19 @@ $data = $args['data'];
         <?php if ($data['text']): ?>
             <p class="text"><?= esc_html($data['text']) ?></p>
         <?php endif; ?>
-        <?php if ($data['email']): ?>
-            <a class="email" href="mailto:<?= esc_attr(antispambot($data['email'])) ?>"><?= esc_html(antispambot($data['email'])) ?></a>
+        <?php if ($data['email']):
+            $email_path_id = 'email-path-' . wp_unique_id();
+            $email_text    = antispambot($data['email']) . ' · ';
+        ?>
+            <a class="email-badge" href="mailto:<?= esc_attr(antispambot($data['email'])) ?>" aria-label="<?= esc_attr(antispambot($data['email'])) ?>">
+                <svg viewBox="0 0 200 200" aria-hidden="true">
+                    <defs>
+                        <path id="<?= esc_attr($email_path_id) ?>" d="M100,100 m-80,0 a80,80 0 1,1 160,0 a80,80 0 1,1 -160,0"/>
+                    </defs>
+                    <circle class="dot" cx="100" cy="100" r="46"/>
+                    <text class="ring"><textPath href="#<?= esc_attr($email_path_id) ?>" textLength="502" lengthAdjust="spacing"><?= esc_html(str_repeat($email_text, 2)) ?></textPath></text>
+                </svg>
+            </a>
         <?php endif; ?>
     </div>
 </section>

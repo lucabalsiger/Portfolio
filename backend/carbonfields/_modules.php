@@ -10,8 +10,75 @@ Container::make('post_meta', 'Module')
             // -> hero_front
             ->add_fields('hero_front', 'Hero Startseite', [
                 Field::make('text', 'title', 'Titel')->set_required(),
-                Field::make('textarea', 'intro', 'Intro')->set_rows(3),
-                Field::make('image', 'image', 'Bild')->set_required(),
+                Field::make('complex', 'intro_lines', 'Intro Zeilen')
+                    ->add_fields([
+                        Field::make('text', 'text', 'Text der Zeile'),
+                        Field::make('select', 'color', 'Farbe')
+                            ->set_options([
+                                'accent' => 'Akzentrot (Standard)',
+                                'ink'    => 'Schwarz — passt sich Dark Mode an',
+                                'paper'  => 'Weiss — passt sich Dark Mode an',
+                            ]),
+                        Field::make('select', 'style', 'Füllstil')
+                            ->set_options([
+                                'filled'   => 'Gefüllt',
+                                'outlined' => 'Outline (nur Kontur)',
+                                'grainy'   => 'Grain',
+                            ]),
+                        Field::make('select', 'stroke_width', 'Strichstärke')
+                            ->set_options([
+                                'thin'   => 'Dünn',
+                                'medium' => 'Mittel',
+                                'thick'  => 'Dick',
+                                'heavy'  => 'Sehr dick',
+                            ])
+                            ->set_default_value('medium')
+                            ->set_help_text('Bei Outline: Stärke der Kontur. Bei Gefüllt: Stärke der Outline beim Hover.'),
+                        Field::make('select', 'spacing', 'Abstand nach unten')
+                            ->set_options([
+                                'default' => 'Standard — eng beieinander',
+                                'overlap' => 'Überlappend',
+                                'tight'   => 'Sehr eng',
+                                'small'   => 'Klein',
+                                'medium'  => 'Mittel',
+                                'large'   => 'Gross',
+                                'huge'    => 'Sehr gross',
+                            ])
+                            ->set_default_value('default'),
+                        Field::make('select', 'size', 'Schriftgrösse')
+                            ->set_options([
+                                'full'      => 'Voll — füllt gesamte Breite (Standard)',
+                                'oversized' => 'Übergroß — bricht aus dem Raster',
+                                'large'     => 'Gross — 75 %',
+                                'medium'    => 'Mittel — 55 %',
+                                'small'     => 'Klein — 38 %',
+                                'tiny'      => 'Winzig — 22 %',
+                            ])
+                            ->set_default_value('full'),
+                        Field::make('select', 'stretch', 'Breite / Stretch')
+                            ->set_options([
+                                'normal'           => 'Normal (Standard)',
+                                'wide'             => 'Breiter — 120 %',
+                                'expanded'         => 'Sehr breiter — 140 %',
+                                'narrow'           => 'Schmal — 88 %',
+                                'condensed'        => 'Komprimiert — 75 %',
+                                'ultra-condensed'  => 'Sehr komprimiert — 60 %',
+                            ])
+                            ->set_default_value('normal'),
+                        Field::make('checkbox', 'italic', 'Kursiv'),
+                        Field::make('select', 'font', 'Schrift')
+                            ->set_options([
+                                'default'   => 'Archivo — geometrisch (Standard)',
+                                'grotesk'   => 'Space Grotesk — modern, mit Eigenheit',
+                                'shoulders' => 'Big Shoulders Display — ultrakondensiert',
+                                'barlow'    => 'Barlow Condensed — minimal, editorial',
+                            ]),
+                    ])
+                    ->set_help_text('Jede Zeile wird automatisch auf die volle Breite skaliert.'),
+                Field::make('checkbox', 'show_photo', 'Portrait-Foto anzeigen')
+                    ->set_default_value('yes')
+                    ->set_help_text('Deaktiviert: Signet wird vergrössert dort platziert, wo das Foto wäre.'),
+                Field::make('image', 'image', 'Bild'),
                 Field::make('text', 'badge_text', 'Text im Signet (roter Kreis)')
                     ->set_help_text('Kurzer Text, der um den roten Kreis läuft, z. B. «multimedia production · fhgr ·»'),
             ])

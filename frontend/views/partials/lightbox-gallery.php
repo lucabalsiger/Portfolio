@@ -76,8 +76,8 @@ $single = $count === 1;
     prev?.addEventListener('click', () => goTo(current - 1));
     next?.addEventListener('click', () => goTo(current + 1));
 
-    wrapper.addEventListener('pointerenter', () => { isHovered = true;  stopAutoplay(); });
-    wrapper.addEventListener('pointerleave', () => { isHovered = false; startAutoplay(); });
+    wrapper.addEventListener('pointerenter', () => { isHovered = true; stopAutoplay(); });
+    wrapper.addEventListener('pointerleave', () => { isHovered = false; remaining = INTERVAL; startAutoplay(); });
 
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) stopAutoplay();
