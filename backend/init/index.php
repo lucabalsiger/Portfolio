@@ -107,7 +107,6 @@ function remove_backend_items (): void {
         foreach ($submenu['themes.php'] as $key => $item) {
             $slug = $item[2];
             if (
-                str_contains($slug, 'customize.php') ||
                 str_contains($slug, 'theme-editor.php') ||
                 str_contains($slug, 'site-editor.php') ||
                 str_contains($slug, 'font-library.php') ||
@@ -127,7 +126,6 @@ function block_disabled_design_pages (): void {
     global $pagenow;
     $blocked_pages = [
         'theme-editor.php',
-        'customize.php',
         'site-editor.php',
         'font-library.php'
     ];

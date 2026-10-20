@@ -10,6 +10,11 @@ $menu_items = get_menu_by_slug('main');
             <?= esc_html(get_bloginfo('name')) ?>
         <?php endif; ?>
     </a>
+    <div class="dots" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
     <?php if ($menu_items): ?>
         <nav class="nav" aria-label="Hauptnavigation">
             <ul>
@@ -19,4 +24,5 @@ $menu_items = get_menu_by_slug('main');
             </ul>
         </nav>
     <?php endif; ?>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Dark Mode umschalten"></button>
 </header>

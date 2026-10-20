@@ -2,26 +2,29 @@
 use Carbon_Fields\Container;
 use Carbon_Fields\Field;
 
-// -> Inhaltsfelder des Post Types «Projekt» (Case Study)
+// -> Inhaltsfelder des Post Types «Projekt»
 Container::make('post_meta', 'Projekt')
     ->where('post_type', '=', 'project')
-    ->add_tab('Übersicht', [
-        Field::make('image', 'image', 'Teaserbild')->set_required(),
-        Field::make('text', 'year', 'Jahr')->set_width(33),
-        Field::make('text', 'context', 'Kontext (Kunde, Modul, Auftrag)')->set_width(33),
-        Field::make('text', 'role', 'Meine Rolle')->set_width(33),
-        Field::make('textarea', 'lead', 'Lead')->set_rows(3),
-        Field::make('text', 'link', 'Externer Link (optional)')->set_attribute('type', 'url'),
+    ->add_tab('Kopf', [
+        Field::make('image', 'image', 'Herobild')
+            ->set_required()
+            ->set_help_text('Wird oben auf der Projektseite und als Teaser in der Übersicht verwendet.'),
+        Field::make('text', 'year', 'Jahr')
+            ->set_width(25),
+        Field::make('text', 'subtitle', 'Untertitel')
+            ->set_width(75)
+            ->set_help_text('z. B. «Fotografie · Adobe Photoshop · Modul IM5»'),
     ])
-    ->add_tab('Konzept & Ziel', [
-        Field::make('rich_text', 'concept', 'Konzept'),
-        Field::make('rich_text', 'goal', 'Ziel'),
+    ->add_tab('Beschrieb', [
+        Field::make('rich_text', 'description', 'Beschrieb'),
     ])
-    ->add_tab('Prozess', [
-        Field::make('rich_text', 'process', 'Prozess'),
-        Field::make('media_gallery', 'process_images', 'Prozessbilder')->set_type(['image']),
+    ->add_tab('Galerie', [
+        Field::make('media_gallery', 'gallery', 'Fotogalerie')
+            ->set_type(['image'])
+            ->set_help_text('Bilder lassen sich per Drag-and-drop sortieren. Alt-Text in der Mediathek setzen.'),
     ])
-    ->add_tab('Ergebnis', [
-        Field::make('rich_text', 'outcome', 'Ergebnis'),
-        Field::make('media_gallery', 'outcome_images', 'Ergebnisbilder')->set_type(['image']),
+    ->add_tab('Link', [
+        Field::make('text', 'link', 'Externer Link (optional)')
+            ->set_attribute('type', 'url')
+            ->set_help_text('Vollständige Adresse mit https://'),
     ]);

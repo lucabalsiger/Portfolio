@@ -15,12 +15,5 @@ $data = $args['data'];
         <?php if ($data['email']): ?>
             <a class="email" href="mailto:<?= esc_attr(antispambot($data['email'])) ?>"><?= esc_html(antispambot($data['email'])) ?></a>
         <?php endif; ?>
-        <?php if ($data['socials']): ?>
-            <ul class="socials">
-                <?php foreach ($data['socials'] as $social): ?>
-                    <li><a href="<?= esc_url($social['link']) ?>"<?= external_link_attrs($social['link']) ?>><?= esc_html($social['title']) ?></a></li>
-                <?php endforeach; ?>
-            </ul>
-        <?php endif; ?>
     </div>
 </section>

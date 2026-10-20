@@ -5,9 +5,6 @@ $legal_items = get_menu_by_slug('legals');
 ?>
 <footer data-layout="footer">
     <p class="footer-text"><?= esc_html(get_globals_footer_text()) ?></p>
-    <?php if ($email): ?>
-        <a class="email" href="mailto:<?= esc_attr(antispambot($email)) ?>"><?= esc_html(antispambot($email)) ?></a>
-    <?php endif; ?>
     <?php if ($socials): ?>
         <ul class="socials">
             <?php foreach ($socials as $social): ?>
