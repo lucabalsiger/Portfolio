@@ -249,61 +249,65 @@ Die Farben für den Dark Mode werden im Block `[data-theme="dark"]` direkt darun
 - **Sicherheit:** Jede Ausgabe wird passend escaped (`esc_html()`, `esc_url()`, `esc_attr()`, `wp_kses_post()`). SVG-Dateien können JavaScript enthalten und dürfen deshalb nur von Admins hochgeladen werden.
 - **CSS ohne Framework:** Mit Custom Properties lassen sich Farben, Abstände und der Dark Mode zentral steuern. Bei den Mobile-Regeln habe ich gemerkt, wie wichtig die Spezifität von Selektoren ist.
 
-<!-- PRÜFEN: Ergänze hier, was du beim nächsten Projekt anders machen würdest. Das kann nur von dir kommen. -->
+**Was ich beim nächsten Projekt anders machen würde**
+- **Grundlagen von Anfang an:** `.gitignore`, `wp_enqueue_*`, dynamische Seitentitel und eine 404-Seite gleich zu Beginn einrichten, statt sie am Schluss nachzurüsten.
+- **Barrierefreiheit früh mitdenken:** `prefers-reduced-motion`, ARIA-Attribute und Bildgrössen direkt beim Bauen einer Funktion berücksichtigen, nicht erst in einer Überarbeitung.
+- **Datenschutz bei externen Ressourcen:** Schriften und andere Dateien von Anfang an lokal einbinden und nur die Schnitte laden, die wirklich gebraucht werden.
+- **Regelmässig testen:** Nach jeder grösseren Änderung im Browser (hell und dunkel, Mobile) und im Backend prüfen, statt viele Änderungen auf einmal zu testen.
+
+<!-- PRÜFEN: Entwurf. Streiche oder ändere, was nicht zu deiner Erfahrung passt. -->
 
 ---
 
 ## Schwierigkeiten und Lösungen
 
-<!--
-ANPASSEN: Beschreibe 3 bis 5 Probleme, die dich wirklich beschäftigt haben. Format pro Punkt:
-**Problem:** Was hat nicht funktioniert oder wie hat es sich gezeigt?
-**Ursache:** Warum war das so?
-**Lösung:** Wie hast du es gelöst, und was hast du dabei gelernt?
+<!-- PRÜFEN: Entwurf auf Basis des Codes. Behalte die Punkte, die dich wirklich beschäftigt haben, und ergänze eigene Erfahrungen. -->
 
-Denkanstösse aus diesem Theme:
-- Auto-Skalierung der Intro-Zeilen: Jede Zeile soll exakt die Breite füllen. Messung über scrollWidth bei 100px, Umrechnung mit --size-factor und --stretch-x, Warten auf document.fonts.ready, auf Mobile clamp() statt JS.
-- SVG-Grain-Filter: filter: url(#intro-grain) lässt sich nicht animieren. Lösung über ein ::after-Overlay mit content: attr(data-text), das nur opacity animiert.
-- Lightbox mit <dialog>: Der eigene Cursor verschwand hinter dem Dialog, weil showModal() den Dialog in den Top-Layer legt. Lösung: Cursor beim Öffnen in den Dialog verschieben und beim Schliessen zurück.
-- Dark Mode ohne Aufblitzen: Theme wurde erst in main.js gesetzt, daher kurz heller Modus. Lösung: Inline-Script im <head>.
-- Doppeltes <main>: page.php und die Views gaben beide ein <main> aus. Lösung: View mit <div data-page>, CSS nutzt nur [data-page].
-- Mobile-Layout: Desktop-Grid-Platzierungen überschreiben (Spezifität [data-module][data-module][data-module]).
--->
+### Intro-Zeilen füllen genau die Breite
+**Problem:** Jede Intro-Zeile auf der Startseite soll genau die Breite des Containers füllen, unabhängig von Textlänge, Schrift und Stretch.<br>
+**Ursache:** Mit CSS allein lässt sich eine Schriftgrösse nicht an die Textbreite koppeln. Ausserdem stimmt die Messung erst, wenn die Webfonts geladen sind.<br>
+**Lösung:** JavaScript setzt jede Zeile auf 100px, misst `scrollWidth` und rechnet die passende Grösse aus. `--size-factor` und `--stretch-x` fliessen in die Rechnung ein. Gerechnet wird erst nach `document.fonts.ready`. Auf Mobile übernimmt `clamp()` und das Script setzt aus.
 
-- **Problem:** 
-  **Ursache:** 
-  **Lösung:** 
-- **Problem:** 
-  **Ursache:** 
-  **Lösung:** 
-- **Problem:** 
-  **Ursache:** 
-  **Lösung:** 
+### Grain-Effekt lässt sich nicht animieren
+**Problem:** Beim Hover sollte das Korn der Grain-Zeilen weich ausblenden, es sprang aber hart um.<br>
+**Ursache:** `filter: url(#intro-grain)` ist in CSS nicht interpolierbar.<br>
+**Lösung:** Das Korn liegt auf einem `::after`-Overlay mit `content: attr(data-text)`. Animiert wird nur noch dessen `opacity`.
+
+### Cursor verschwindet in der Lightbox
+**Problem:** Der eigene Cursor war in der Lightbox nicht mehr sichtbar.<br>
+**Ursache:** `showModal()` legt den `<dialog>` in den Top-Layer, über alle anderen Elemente, unabhängig vom `z-index`.<br>
+**Lösung:** Beim Öffnen wird das Cursor-Element in den Dialog verschoben, beim Schliessen zurück in den `<body>`.
+
+### Dark Mode blitzt beim Laden hell auf
+**Problem:** Im Dark Mode war beim Laden jeder Seite kurz der helle Modus zu sehen.<br>
+**Ursache:** `data-theme` wurde erst in `main.js` am Ende der Seite gesetzt, also nachdem der Browser schon gezeichnet hatte.<br>
+**Lösung:** Ein kleines Inline-Script direkt nach `<meta charset>` setzt den Modus vor dem ersten Zeichnen. `main.js` kümmert sich nur noch um das Umschalten.
+
+### Doppeltes `<main>`
+**Problem:** Im HTML waren zwei `<main>`-Elemente ineinander verschachtelt. Das ist ungültig und für Screenreader verwirrend.<br>
+**Ursache:** Die Templates im Hauptordner und die Views in `frontend/views/pages/` öffneten beide ein `<main>`.<br>
+**Lösung:** Die Views verwenden jetzt `<div data-page="…">`. Das CSS nutzt nur `[data-page]` ohne Tag, deshalb blieb die Darstellung gleich.
 
 ---
 
 ## Einsatz von KI
 
-<!--
-ANPASSEN: Dokumentiere offen, wofür du KI-Werkzeuge (z. B. Claude, Claude Code) eingesetzt hast.
-Denkanstösse:
-- Wofür: z. B. Erklärungen, Fehlersuche, Vorschläge für CSS- oder JS-Techniken, Code-Review, Aufräumen, README-Struktur
-- Was ich selbst gemacht habe: Konzept, Gestaltung, Aufbau der Module, eigene Umsetzung, Entscheidungen
-- Wie ich die Ergebnisse geprüft habe: im Browser getestet (hell/dunkel, Mobile), im Backend getestet, Code gelesen und verstanden, mit Dokumentation abgeglichen, Vorschläge angepasst oder verworfen
-- Wo hat KI nicht geholfen oder falsche Vorschläge gemacht?
--->
+<!-- PRÜFEN: Dieser Abschnitt muss ehrlich sein. Ergänze, wofür du KI sonst noch genutzt hast, und streiche, was nicht zutrifft. -->
 
 **Wofür**
-- 
-- 
+- Claude als Unterstützung bei anspruchsvolleren CSS- und JavaScript-Techniken, etwa der Auto-Skalierung der Intro-Zeilen und dem Grain-Effekt. <!-- PRÜFEN: stimmt das so? -->
+- Claude Code für eine Überarbeitung am Schluss: doppeltes `<main>` entfernt, SVG-Upload abgesichert, dynamische Seitentitel, 404-Seite, lokale Schriften, Dark Mode ohne Aufblitzen, Barrierefreiheit (`aria-pressed`, reduzierte Bewegung, Bildgrössen), Einbinden über `wp_enqueue_*`, `.gitignore`. Die Aufgaben dafür habe ich vorgegeben.
+- Claude Code für Struktur und erste Entwürfe dieses README.
 
 **Was ich selbst gemacht habe**
-- 
-- 
+- Konzept und Gestaltung des Portfolios <!-- PRÜFEN -->
+- Aufbau des Themes auf Basis des IM5-Starter-Themes, Module und Inhalte im Backend <!-- PRÜFEN -->
+- Entscheidungen bei Vorschlägen der KI, zum Beispiel `'rewrite' => false` statt den Eintrag nur zu entfernen
 
 **Wie ich die Ergebnisse geprüft habe**
-- 
-- 
+- Änderungen im Code gelesen und nachvollzogen, PHP-Dateien mit `php -l` geprüft
+- Im Browser getestet: Startseite, Projektseite, 404-Seite, Dark Mode nach Reload, Netzwerk-Tab ohne Anfragen an Google <!-- PRÜFEN: erst eintragen, wenn du es wirklich getestet hast -->
+- Im Backend getestet: SVG-Upload als Admin und als Redaktor:in, Kategorien bei Projekten <!-- PRÜFEN: erst eintragen, wenn du es wirklich getestet hast -->
 
 ---
 
