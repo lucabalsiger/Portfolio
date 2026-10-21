@@ -1,5 +1,4 @@
-<?php /* Abschliessender HTML-Teil: JavaScript laden, wp_footer()-Hook, body und html schliessen. */ ?>
-<script src="<?php bloginfo('template_directory'); ?>/frontend/scripts/main.js" type="module"></script>
+<?php /* Abschliessender HTML-Teil: wp_footer() lädt main.js (siehe backend/enqueue/), danach body und html schliessen. */ ?>
 <?php wp_footer(); ?>
 </body>
 </html>

@@ -15,12 +15,15 @@ register_taxonomy(
             'add_new_item' => 'Neue Kategorie hinzufügen',
         ],
         'public' => true,
+        // keine Kategorie-Archivseiten im Frontend, Kategorien erscheinen nur in den Teasern
+        'publicly_queryable' => false,
         // show_in_rest true, damit die Kategorien im klassischen Editor als Box erscheinen
         'show_in_rest' => true,
         'show_in_nav_menus' => false,
         'show_admin_column' => true,
         'query_var' => true,
         'hierarchical' => true,
-        'rewrite' => ['slug' => 'kategorie'],
+        // false statt weglassen: sonst erzeugt WordPress Standard-URLs (/project_category/...), die auf die Startseite führen
+        'rewrite' => false,
     ],
 );

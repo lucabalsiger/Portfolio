@@ -25,6 +25,9 @@ function get_media_by_id(int|string $id, string $size = 'm'): false|array
     $image = wp_get_attachment_image_src($id, $size);
     if ($image) {
         $data['src'] = $image[0];
+        // -> Breite und Höhe, damit der Browser den Platz reserviert und das Layout nicht springt (bei SVG oft 0)
+        $data['width'] = (int) $image[1];
+        $data['height'] = (int) $image[2];
         $data['type'] = 'image';
     } else {
         $data['src'] = wp_get_attachment_url($id);

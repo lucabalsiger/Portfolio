@@ -13,6 +13,11 @@ add_image_size('m', 1200, 1200);
 add_image_size('l', 1800, 1800);
 add_image_size('xl', 2800, 2800);
 
+// -> WordPress erzeugt das <title>-Tag selbst (Seitentitel und Name der Webseite)
+add_action('after_setup_theme', function () {
+    add_theme_support('title-tag');
+});
+
 // -> enable block editor and clean up
 add_filter('use_block_editor_for_post_type', function () {
     return false;
@@ -39,8 +44,12 @@ add_action(
 );
 
 // -> allow uploading svg images
+// -> nur für Administrator:innen, weil SVG-Dateien JavaScript enthalten können
+// -> empfohlen: zusätzlich das Plugin «Safe SVG» installieren, es bereinigt SVG-Dateien beim Upload
 function wp_init_extend_upload_mimes ($mimes) {
-    $mimes['svg'] = 'image/svg+xml';
+    if (current_user_can('manage_options')) {
+        $mimes['svg'] = 'image/svg+xml';
+    }
     return $mimes;
 }
 

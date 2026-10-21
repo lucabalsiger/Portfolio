@@ -3,7 +3,7 @@ $project = get_project_by_id(get_the_ID());
 // Unterzeile: Jahr und Untertitel, leere Werte werden weggelassen
 $subline = implode(' · ', array_filter([$project['year'], $project['subtitle']]));
 ?>
-<main data-page="project">
+<div data-page="project">
     <section class="project-hero">
         <h1 class="title"><?= esc_html($project['title']) ?></h1>
         <?php if ($project['image']): ?>
@@ -29,4 +29,4 @@ $subline = implode(' · ', array_filter([$project['year'], $project['subtitle']]
             <a href="<?= esc_url($project['link']) ?>"<?= external_link_attrs($project['link']) ?>><?= esc_html($project['link_label']) ?></a>
         </p>
     <?php endif; ?>
-</main>
+</div>

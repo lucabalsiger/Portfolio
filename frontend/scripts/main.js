@@ -45,9 +45,12 @@ document.querySelectorAll('[data-module]:not([data-module="overview-projects"]),
     revealObserver.observe(el);
 });
 
+// Reduzierte Bewegung: Scramble und magnetische Links werden dann nicht ausgeführt (wie im CSS)
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 // Text scramble on brand name hover (nur wenn kein Logo-Bild vorhanden)
 const brand = document.querySelector('[data-layout="header"] .brand');
-if (brand && !brand.querySelector('img')) {
+if (brand && !brand.querySelector('img') && !reduceMotion) {
     const textNode = brand.firstChild;
     const original = textNode.textContent;
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789!?#@';
@@ -81,38 +84,43 @@ if (brand && !brand.querySelector('img')) {
 }
 
 // Magnetic nav links
-document.querySelectorAll('[data-layout="header"] .nav a, [data-layout="header"] .brand').forEach(el => {
-    el.addEventListener('mouseenter', () => {
-        el.style.transition = 'transform 0.1s ease, background-color 0.18s, color 0.18s';
+if (!reduceMotion) {
+    document.querySelectorAll('[data-layout="header"] .nav a, [data-layout="header"] .brand').forEach(el => {
+        el.addEventListener('mouseenter', () => {
+            el.style.transition = 'transform 0.1s ease, background-color 0.18s, color 0.18s';
+        });
+        el.addEventListener('mousemove', e => {
+            const rect = el.getBoundingClientRect();
+            const dx = (e.clientX - (rect.left + rect.width / 2)) * 0.3;
+            const dy = (e.clientY - (rect.top + rect.height / 2)) * 0.3;
+            el.style.transform = `translate(${dx}px, ${dy}px)`;
+        });
+        el.addEventListener('mouseleave', () => {
+            el.style.transition = 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), background-color 0.18s, color 0.18s';
+            el.style.transform = '';
+            setTimeout(() => { el.style.transition = ''; }, 500);
+        });
     });
-    el.addEventListener('mousemove', e => {
-        const rect = el.getBoundingClientRect();
-        const dx = (e.clientX - (rect.left + rect.width / 2)) * 0.3;
-        const dy = (e.clientY - (rect.top + rect.height / 2)) * 0.3;
-        el.style.transform = `translate(${dx}px, ${dy}px)`;
-    });
-    el.addEventListener('mouseleave', () => {
-        el.style.transition = 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), background-color 0.18s, color 0.18s';
-        el.style.transform = '';
-        setTimeout(() => { el.style.transition = ''; }, 500);
-    });
-});
+}
 
-// Dark mode
+// Dark mode: Startwert setzt bereits das Inline-Script in header.php, hier nur noch das Umschalten
 const html = document.documentElement;
 const themeToggle = document.getElementById('theme-toggle');
 
-function setTheme(theme) {
-    html.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
+// aria-pressed zeigt Screenreadern, ob der Dark Mode aktiv ist
+function updateThemePressed() {
+    themeToggle?.setAttribute('aria-pressed', html.getAttribute('data-theme') === 'dark' ? 'true' : 'false');
 }
 
-const saved = localStorage.getItem('theme');
-if (saved) {
-    setTheme(saved);
-} else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    setTheme('dark');
+function setTheme(theme) {
+    html.setAttribute('data-theme', theme);
+    updateThemePressed();
+    try {
+        localStorage.setItem('theme', theme);
+    } catch (e) {}
 }
+
+updateThemePressed();
 
 themeToggle?.addEventListener('click', () => {
     setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');

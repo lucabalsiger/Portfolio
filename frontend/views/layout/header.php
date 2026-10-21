@@ -25,5 +25,5 @@ $menu_items = get_menu_by_slug('main');
             </ul>
         </nav>
     <?php endif; ?>
-    <button class="theme-toggle" id="theme-toggle" aria-label="Dark Mode umschalten"></button>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Dark Mode umschalten" aria-pressed="false"></button>
 </header>

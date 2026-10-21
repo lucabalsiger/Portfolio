@@ -1,0 +1,15 @@
+# Systemdateien
+.DS_Store
+Thumbs.db
+
+# Editor und IDE
+.vscode/
+.idea/
+
+# Abhängigkeiten und Logs
+node_modules/
+*.log
+
+# Zugangsdaten
+.env
+wp-config.php

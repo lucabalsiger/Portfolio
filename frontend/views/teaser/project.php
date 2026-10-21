@@ -5,7 +5,7 @@ $project = $args['data'];
 <a class="teaser-project" href="<?= esc_url($project['url']) ?>">
     <?php if ($project['image']): ?>
         <div class="image-wrap">
-            <img class="image" src="<?= esc_url($project['image']['src']) ?>" alt="<?= esc_attr($project['image']['alt']) ?>" loading="lazy">
+            <img class="image" src="<?= esc_url($project['image']['src']) ?>" alt="<?= esc_attr($project['image']['alt']) ?>"<?php if (!empty($project['image']['width']) && !empty($project['image']['height'])): ?> width="<?= esc_attr($project['image']['width']) ?>" height="<?= esc_attr($project['image']['height']) ?>"<?php endif; ?> loading="lazy">
         </div>
     <?php endif; ?>
     <?php if ($project['categories'] || $project['year']): ?>

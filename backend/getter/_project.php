@@ -1,14 +1,19 @@
 <?php
 
 // -> IDs aller veröffentlichten Projekte in ihrer Reihenfolge
+// -> static: Die Abfrage läuft pro Seitenaufruf nur einmal, danach kommt das gespeicherte Ergebnis
 function get_project_ids(): array {
-    return get_posts([
-        'post_type' => 'project',
-        'post_status' => 'publish',
-        'posts_per_page' => -1,
-        'orderby' => ['menu_order' => 'ASC', 'date' => 'DESC'],
-        'fields' => 'ids',
-    ]);
+    static $ids = null;
+    if ($ids === null) {
+        $ids = get_posts([
+            'post_type' => 'project',
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'orderby' => ['menu_order' => 'ASC', 'date' => 'DESC'],
+            'fields' => 'ids',
+        ]);
+    }
+    return $ids;
 }
 
 // -> Nummer eines Projekts (1, 2, 3 ...) aus der Reihenfolge berechnen
@@ -51,7 +56,6 @@ function get_project_teaser_by_id(int $id): array {
     return [
         'title' => get_the_title($id),
         'url' => get_permalink($id),
-        'number' => get_project_number($id),
         'year' => carbon_get_post_meta($id, 'year'),
         'categories' => get_project_categories($id),
         'image' => $image ? get_media_by_id($image, 'm') : false,

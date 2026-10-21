@@ -14,3 +14,37 @@
     font-display: swap;
     src: url('../assets/fonts/archivo-800.woff2') format('woff2');
 }
+
+/*--- Schriften für die Intro-Zeilen (SIL Open Font License, siehe assets/fonts/OFL.txt) ---*/
+/* Nur die Schnitte, die tatsächlich verwendet werden: Intro-Zeilen haben font-weight 800 */
+/* Space Grotesk: 700 ist der fetteste Schnitt, kursiv wird vom Browser schräggestellt */
+@font-face {
+    font-family: 'Space Grotesk';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('../assets/fonts/space-grotesk-700.woff2') format('woff2');
+}
+/* Big Shoulders Display: bei 800 wählt der Browser 900, kursiv gibt es nicht (wird schräggestellt) */
+@font-face {
+    font-family: 'Big Shoulders Display';
+    font-style: normal;
+    font-weight: 900;
+    font-display: swap;
+    src: url('../assets/fonts/big-shoulders-display-900.woff2') format('woff2');
+}
+/* Barlow Condensed: 800 normal und kursiv */
+@font-face {
+    font-family: 'Barlow Condensed';
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url('../assets/fonts/barlow-condensed-800.woff2') format('woff2');
+}
+@font-face {
+    font-family: 'Barlow Condensed';
+    font-style: italic;
+    font-weight: 800;
+    font-display: swap;
+    src: url('../assets/fonts/barlow-condensed-800-italic.woff2') format('woff2');
+}

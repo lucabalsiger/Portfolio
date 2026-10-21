@@ -8,7 +8,7 @@ if (!$images) {
 <div class="gallery">
     <?php foreach ($images as $image): ?>
         <figure class="gallery-item">
-            <img src="<?= esc_url($image['src']) ?>" alt="<?= esc_attr($image['alt']) ?>" loading="lazy">
+            <img src="<?= esc_url($image['src']) ?>" alt="<?= esc_attr($image['alt']) ?>"<?php if (!empty($image['width']) && !empty($image['height'])): ?> width="<?= esc_attr($image['width']) ?>" height="<?= esc_attr($image['height']) ?>"<?php endif; ?> loading="lazy">
         </figure>
     <?php endforeach; ?>
 </div>

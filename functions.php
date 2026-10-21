@@ -1,6 +1,7 @@
 <?php
 // Einstiegspunkt des Themes. Lädt alle Backend-Module der Reihe nach.
 require_once __DIR__ . '/backend/init/index.php';           // Basis-Setup: Bildgrössen, Bereinigung
+require_once __DIR__ . '/backend/enqueue/index.php';        // Styles und Scripts einbinden (main.css, main.js)
 require_once __DIR__ . '/backend/helpers/index.php';        // Globale Hilfsfunktionen
 require_once __DIR__ . '/backend/nav/index.php';            // Navigationsmenüs registrieren
 require_once __DIR__ . '/backend/cpt/index.php';            // Custom Post Types (Projekte)
