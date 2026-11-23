@@ -82,10 +82,9 @@ function render_messages_page(): void
     <?php
 }
 
-// -> Kasten «Mailversand»: zeigt den Versandweg (ohne Passwort) und das Ergebnis der letzten Testmail
+// -> Kasten «Mailversand»: Empfänger des Kontaktformulars und Testmail mit Ergebnis der letzten Prüfung
 function render_test_mail_box(): void
 {
-    $smtp = defined('PORTFOLIO_SMTP_HOST') && defined('PORTFOLIO_SMTP_USER') && defined('PORTFOLIO_SMTP_PASS');
     $result = isset($_GET['testmail']) ? get_transient('portfolio_test_mail_result') : false;
     if ($result) {
         delete_transient('portfolio_test_mail_result');
@@ -93,7 +92,7 @@ function render_test_mail_box(): void
         <div class="notice notice-<?= $result['sent'] ? 'success' : 'error' ?>">
             <p>
                 <?php if ($result['sent']): ?>
-                    <strong>Der Mailserver hat die Testmail an <?= esc_html($result['to']) ?> angenommen.</strong>
+                    <strong>Die Testmail an <?= esc_html($result['to']) ?> wurde verschickt.</strong>
                     Kommt sie nicht an, im Spam-Ordner nachschauen.
                 <?php else: ?>
                     <strong>Testmail an <?= esc_html($result['to']) ?> fehlgeschlagen:</strong> <?= esc_html($result['error'] ?: 'keine Fehlermeldung') ?>
@@ -105,14 +104,7 @@ function render_test_mail_box(): void
     ?>
     <div class="card" style="max-width: none; margin-bottom: 16px">
         <h2 class="title">Mailversand</h2>
-        <p>
-            <?php if ($smtp): ?>
-                Versand über SMTP: <code><?= esc_html(PORTFOLIO_SMTP_HOST) ?></code>, Benutzer <code><?= esc_html(PORTFOLIO_SMTP_USER) ?></code>
-            <?php else: ?>
-                Versand direkt vom Webserver. In der <code>wp-config.php</code> sind keine SMTP-Zugangsdaten eingetragen (siehe <code>backend/mail/index.php</code>).
-            <?php endif; ?>
-            <br>Empfänger des Kontaktformulars (Globales): <code><?= esc_html(get_globals_email() ?: get_option('admin_email')) ?></code>
-        </p>
+        <p>Nachrichten aus dem Kontaktformular gehen an <code><?= esc_html(get_globals_email() ?: get_option('admin_email')) ?></code> (änderbar unter «Globales»).</p>
         <form method="post" action="<?= esc_url(admin_url('admin-post.php')) ?>">
             <input type="hidden" name="action" value="portfolio_test_mail">
             <?php wp_nonce_field('portfolio_test_mail'); ?>
