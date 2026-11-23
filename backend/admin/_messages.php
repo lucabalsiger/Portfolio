@@ -30,6 +30,7 @@ function render_messages_page(): void
         <?php if (isset($_GET['deleted'])): ?>
             <div class="notice notice-success is-dismissible"><p>Die Nachricht wurde gelöscht.</p></div>
         <?php endif; ?>
+        <?php render_test_mail_box(); ?>
         <p>Nachrichten aus dem Kontaktformular, die neuste zuerst. Sie bleiben gespeichert, bis sie hier gelöscht werden.</p>
         <?php if (!$messages): ?>
             <p><strong>Noch keine Nachrichten.</strong></p>
@@ -80,6 +81,65 @@ function render_messages_page(): void
     </div>
     <?php
 }
+
+// -> Kasten «Mailversand»: zeigt den Versandweg (ohne Passwort) und das Ergebnis der letzten Testmail
+function render_test_mail_box(): void
+{
+    $smtp = defined('PORTFOLIO_SMTP_HOST') && defined('PORTFOLIO_SMTP_USER') && defined('PORTFOLIO_SMTP_PASS');
+    $result = isset($_GET['testmail']) ? get_transient('portfolio_test_mail_result') : false;
+    if ($result) {
+        delete_transient('portfolio_test_mail_result');
+        ?>
+        <div class="notice notice-<?= $result['sent'] ? 'success' : 'error' ?>">
+            <p>
+                <?php if ($result['sent']): ?>
+                    <strong>Der Mailserver hat die Testmail an <?= esc_html($result['to']) ?> angenommen.</strong>
+                    Kommt sie nicht an, im Spam-Ordner nachschauen.
+                <?php else: ?>
+                    <strong>Testmail an <?= esc_html($result['to']) ?> fehlgeschlagen:</strong> <?= esc_html($result['error'] ?: 'keine Fehlermeldung') ?>
+                <?php endif; ?>
+            </p>
+        </div>
+        <?php
+    }
+    ?>
+    <div class="card" style="max-width: none; margin-bottom: 16px">
+        <h2 class="title">Mailversand</h2>
+        <p>
+            <?php if ($smtp): ?>
+                Versand über SMTP: <code><?= esc_html(PORTFOLIO_SMTP_HOST) ?></code>, Benutzer <code><?= esc_html(PORTFOLIO_SMTP_USER) ?></code>
+            <?php else: ?>
+                Versand direkt vom Webserver. In der <code>wp-config.php</code> sind keine SMTP-Zugangsdaten eingetragen (siehe <code>backend/mail/index.php</code>).
+            <?php endif; ?>
+            <br>Empfänger des Kontaktformulars (Globales): <code><?= esc_html(get_globals_email() ?: get_option('admin_email')) ?></code>
+        </p>
+        <form method="post" action="<?= esc_url(admin_url('admin-post.php')) ?>">
+            <input type="hidden" name="action" value="portfolio_test_mail">
+            <?php wp_nonce_field('portfolio_test_mail'); ?>
+            <button type="submit" class="button">Testmail senden</button>
+        </form>
+    </div>
+    <?php
+}
+
+// -> Testmail senden und die Fehlermeldung des Mailservers für die Anzeige merken (nur Admins, mit Nonce)
+add_action('admin_post_portfolio_test_mail', function () {
+    if (!current_user_can('manage_options')) {
+        wp_die('Keine Berechtigung.', 403);
+    }
+    check_admin_referer('portfolio_test_mail');
+    $error = '';
+    $catch = function (WP_Error $wp_error) use (&$error) {
+        $error = $wp_error->get_error_message();
+    };
+    add_action('wp_mail_failed', $catch);
+    $to = get_globals_email() ?: get_option('admin_email');
+    $sent = wp_mail($to, 'Testmail von ' . get_bloginfo('name'), "Diese Testmail kommt aus dem Backend (Nachrichten > Testmail senden).\nWenn du sie liest, funktioniert der Mailversand.");
+    remove_action('wp_mail_failed', $catch);
+    set_transient('portfolio_test_mail_result', ['sent' => $sent, 'to' => $to, 'error' => $error], 5 * MINUTE_IN_SECONDS);
+    wp_safe_redirect(add_query_arg(['page' => 'portfolio-messages', 'testmail' => '1'], admin_url('admin.php')));
+    exit;
+});
 
 // -> Nachricht löschen: nur Admins, nur mit gültigem Nonce für genau diese Nachricht
 add_action('admin_post_portfolio_delete_message', function () {

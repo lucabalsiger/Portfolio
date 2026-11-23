@@ -55,7 +55,7 @@ Punkte, die nur dieses Theme betreffen: eigene Datenbank-Tabellen, REST-Endpunkt
 
 ### Kontaktformular und Mail
 - [ ] 🔴 Ich habe das Kontaktformular auf der Live-Seite ausgefüllt (nach mindestens 3 Sekunden) und die Mail ist an der Adresse aus «Globales» angekommen.
-- [ ] 🟠 Falls keine Mail ankommt: Plugin «WP Mail SMTP» installieren und mit dem Postfach des Hosters verbinden. Viele Hoster stellen Mails von `wp_mail()` ohne SMTP nicht zuverlässig zu.
+- [ ] 🟠 Falls keine Mail ankommt: In der `wp-config.php` auf dem Server die SMTP-Zugangsdaten eines Postfachs der eigenen Domain eintragen (`PORTFOLIO_SMTP_HOST`, `PORTFOLIO_SMTP_USER`, `PORTFOLIO_SMTP_PASS`, siehe `backend/mail/index.php`). Ein Plugin ist nicht nötig.
 - [ ] 🟠 Ein Caching-Plugin speichert Seiten höchstens 24 Stunden. Sonst ist der Zeitstempel im Formular abgelaufen und Besucher:innen sehen «das formular ist abgelaufen». Alternativ die Kontaktseite vom Cache ausnehmen.
 
 ### Rechtliches für dieses Theme

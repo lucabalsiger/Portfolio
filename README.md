@@ -5,15 +5,14 @@ Das Portfolio zeigt ausgewählte Projekte von Luca Balsiger in einem eigenen Wor
 
 Interaktiv wird das Portfolio durch eigene Datenbank-Tabellen und REST-Endpunkte: Besucher:innen können Projekten Applaus geben und über ein Kontaktformular mit Spam-Schutz schreiben. Aufrufe, Applaus und Nachrichten erscheinen im Backend. Ein Modul zeigt die aktuellen GitHub-Repos über die GitHub-API.
 
-<!-- ANPASSEN: Live-URL eintragen, z. B. https://deinedomain.ch -->
-Live: _URL folgt_
+Live: [lucabalsiger.ch](https://lucabalsiger.ch)
 
 ---
 
 ## Live-Version
 
-<!-- ANPASSEN: Link zur veröffentlichten Webseite eintragen. -->
-- Webseite: _Link folgt_
+- Webseite: [https://lucabalsiger.ch](https://lucabalsiger.ch)
+- Gehostet bei Infomaniak (Webhosting, PHP 8.3, SSL über Let's Encrypt)
 
 ---
 
@@ -97,6 +96,7 @@ Alle Dateien für Funktionalität und CMS-Konfiguration. Hier wird gearbeitet, w
 | `getter/` | Funktionen, die Daten aus der Datenbank holen und für Templates aufbereiten |
 | `helpers/` | Allgemeine Hilfsfunktionen, die überall genutzt werden können |
 | `init/` | WordPress-Basis-Setup: Bildgrössen, Seitentitel, Bereinigung, SVG-Upload (nur Admins) |
+| `mail/` | Mailversand ohne Plugin: Umschlag-Absender passend zur Domain (DMARC), optional SMTP mit Zugangsdaten aus `wp-config.php` |
 | `nav/` | Navigationsmenüs registrieren |
 | `seo/` | Angaben für Suchmaschinen und Social Media im `<head>`: Beschreibung, Open Graph, Canonical, strukturierte Daten (JSON-LD), noindex für 404 |
 | `rest/` | Eigene REST-Endpunkte unter `/wp-json/portfolio/v1/`: Aufrufe und Applaus zählen (`_stats.php`), Kontaktformular mit Spam-Schutz und Mailversand (`_contact.php`) |
@@ -264,6 +264,7 @@ Das Formular im Kontaktmodul (`frontend/views/partials/contact-form.php`) schick
 
 - **Rückmeldung:** Fehler erscheinen direkt beim Feld (`aria-invalid`, `aria-describedby`), der Fokus springt ins erste fehlerhafte Feld. Während des Sendens ist der Button deaktiviert, danach meldet ein Statustext (`role="status"`) Erfolg oder Fehler.
 - **Spam-Schutz ohne Captcha und ohne Dienste von Dritten:** ein unsichtbares Honeypot-Feld, ein mit `wp_hash()` signierter Zeitstempel (wer schneller als in 3 Sekunden absendet, ist ein Bot) und höchstens 3 Nachrichten pro Person und Stunde. Bots erhalten trotzdem eine Erfolgsmeldung, damit sie nicht merken, was sie verraten hat.
+- **Mailversand ohne Plugin** (`backend/mail/`): Die Domain verlangt mit `DMARC p=reject`, dass Absender und Umschlag-Absender (Return-Path) zur Domain passen. Das Theme setzt deshalb den Umschlag-Absender auf die Absenderadresse. Stehen in der `wp-config.php` auf dem Server die Konstanten `PORTFOLIO_SMTP_HOST`, `PORTFOLIO_SMTP_USER` und `PORTFOLIO_SMTP_PASS`, verschickt das Theme über SMTP mit diesem Postfach. Die Zugangsdaten stehen bewusst nicht im Theme, weil es öffentlich auf GitHub liegt.
 - **Ohne JavaScript** sendet der Browser das Formular normal ab, die Nachricht kommt an, die Antwort erscheint dann aber als JSON.
 - **Im Backend** listet der Menüpunkt **Nachrichten** alle gespeicherten Nachrichten, die neuste zuerst, 20 pro Seite. Pro Nachricht gibt es einen Link «Antworten» (öffnet das Mailprogramm) und «Löschen». Die Seite ist nur für Admins sichtbar, weil die Nachrichten Personendaten enthalten. Nachrichten bleiben gespeichert, bis sie gelöscht werden.
 
@@ -336,32 +337,28 @@ Die Farben für den Dark Mode werden im Block `[data-theme="dark"]` direkt darun
 
 ## Learnings
 
-<!-- PRÜFEN: Entwurf. Lies jeden Punkt durch und formuliere ihn so um, dass er deine eigene Erfahrung wiedergibt. Streiche, was nicht stimmt. -->
-
-- **Template-Hierarchie:** WordPress wählt das Template anhand fester Regeln. Für eine Seite nimmt es `page.php`, für ein Projekt `single-project.php`, für eine nicht gefundene Seite `404.php`. Erst wenn nichts passt, greift `index.php`. Fehlt ein Template, landet man auf einer leeren Seite, wie es bei der 404-Seite anfangs der Fall war.
-- **Daten und Darstellung trennen:** Die Getter in `backend/getter/` holen die Daten aus Carbon Fields und bereiten sie auf. Die Templates bekommen über `get_template_part()` und `$args` nur noch fertige Werte und bleiben dadurch kurz und lesbar. Änderungen an Feldern betreffen so meist nur eine Stelle.
-- **Modulbaukasten:** Mit einem Complex Field und `render_modules()` lassen sich Seiten im Backend frei aus Bausteinen zusammensetzen, ohne Page Builder. Ein neues Modul braucht nur eine Feldkonfiguration und ein Template.
-- **Post Types und Taxonomien:** `public`, `publicly_queryable` und `rewrite` steuern, ob und unter welcher URL Inhalte im Frontend erreichbar sind. Lässt man `rewrite` weg, gilt der Standard `true` und WordPress erzeugt trotzdem URLs.
-- **Sicherheit:** Jede Ausgabe wird passend escaped (`esc_html()`, `esc_url()`, `esc_attr()`, `wp_kses_post()`). SVG-Dateien können JavaScript enthalten und dürfen deshalb nur von Admins hochgeladen werden.
-- **CSS ohne Framework:** Mit Custom Properties lassen sich Farben, Abstände und der Dark Mode zentral steuern. Bei den Mobile-Regeln habe ich gemerkt, wie wichtig die Spezifität von Selektoren ist.
-- **Eigene Datenbank-Tabellen:** Mit `dbDelta()` und einer gespeicherten Versionsnummer legt sich eine Tabelle auf jedem Server selbst an. Jede Abfrage läuft über `$wpdb->prepare()`, Tabellennamen über den Platzhalter `%i`.
-- **REST API:** Mit `register_rest_route()` wird WordPress zum Backend für eigene Interaktionen. Öffentliche Endpunkte brauchen eigenen Schutz gegen Missbrauch, zum Beispiel Sperren per Transient.
-- **Externe APIs:** Daten von GitHub serverseitig laden und zwischenspeichern ist schneller, schont das API-Limit und schickt keine Daten der Besucher:innen an Dritte.
-- **Messen statt raten:** Lighthouse hat gezeigt, dass nicht das Herobild, sondern die Galerie im Hintergrund die Projektseite langsam macht.
+- **Template-Hierarchie:** WordPress wählt das Template nach festen Regeln: `page.php` für Seiten, `single-project.php` für Projekte, `404.php` für nicht gefundene Seiten und erst zuletzt `index.php`. Solange `404.php` fehlte, landeten falsche Links auf einer leeren Seite. Seither weiss ich, dass jede Art von Seite ein passendes Template braucht.
+- **Daten und Darstellung trennen:** Die Getter in `backend/getter/` holen die Daten aus Carbon Fields und bereiten sie auf, die Templates bekommen über `get_template_part()` und `$args` nur noch fertige Werte. Das hat sich bei jeder Erweiterung ausgezahlt: Für Aufrufe, Applaus oder responsive Bilder musste ich meist nur einen Getter ergänzen und ein Template anpassen.
+- **Modulbaukasten:** Mit einem Complex Field und `render_modules()` setze ich Seiten im Backend frei aus Bausteinen zusammen, ohne Page Builder. Ein neues Modul wie «GitHub-Repos» braucht nur eine Feldkonfiguration, ein paar Zeilen in `render_modules()` und ein Template.
+- **Post Types und Taxonomien:** `public`, `publicly_queryable` und `rewrite` steuern, ob und unter welcher URL Inhalte erreichbar sind. Lässt man `rewrite` einfach weg, gilt der Standard `true` und WordPress erzeugt trotzdem URLs. Darum steht bei den Projektkategorien ausdrücklich `'rewrite' => false`.
+- **Eigene Datenbank-Tabellen:** Mit `dbDelta()` und einer gespeicherten Versionsnummer legt sich eine Tabelle auf jedem Server selbst an, auch nach einem Umzug. Jede Abfrage läuft über `$wpdb->prepare()`, Tabellennamen über den Platzhalter `%i`, Spaltennamen nur aus festen Listen.
+- **REST API:** Mit `register_rest_route()` wird WordPress zum Backend für eigene Interaktionen wie Applaus und Kontaktformular. Ein öffentlicher Endpunkt nimmt aber jede Anfrage an. Schutz gegen Missbrauch muss ich selbst einbauen, hier mit Sperren als Transient, einem Honeypot und einem signierten Zeitstempel.
+- **Externe APIs:** Die GitHub-Repos lade ich auf dem Server und speichere sie 6 Stunden zwischen. Das ist schneller, schont das API-Limit und schickt keine Daten der Besucher:innen an GitHub. Wichtig war auch der Fall, dass GitHub nicht erreichbar ist: Dann bleibt der letzte Stand sichtbar oder das Modul verschwindet, statt einen Fehler zu zeigen.
+- **Sicherheit:** Jede Ausgabe wird passend escaped (`esc_html()`, `esc_url()`, `esc_attr()`, `wp_kses_post()`), jede Eingabe auf dem Server geprüft. Aktionen im Backend wie Löschen oder Zurücksetzen laufen nur mit Nonce und nur für Admins. SVG-Dateien können JavaScript enthalten und dürfen nur von Admins hochgeladen werden.
+- **Barrierefreiheit ist mehr als Kontrast:** Alt-Texte, eine `h1` pro Seite ohne übersprungene Ebenen, das richtige `lang`-Attribut und `prefers-reduced-motion` gehören dazu. Dass meine Seite `lang="en-US"` ausgab, lag an der Spracheinstellung von WordPress und nicht am Code.
+- **CSS ohne Framework:** Mit Custom Properties steuere ich Farben, Abstände und den Dark Mode zentral. Die Reihenfolge und Spezifität von Selektoren hat mich mehrmals überrascht: Die Ausnahme für reduzierte Bewegung wirkte nicht, weil die Regeln für das Scroll Reveal weiter unten standen.
+- **Messen statt raten:** Ich hätte das grosse Herobild für das Problem gehalten. Lighthouse hat gezeigt, dass die Galerie im Hintergrund die Projektseite langsam machte. Erst die Messung hat zur richtigen Lösung geführt.
 
 **Was ich beim nächsten Projekt anders machen würde**
-- **Grundlagen von Anfang an:** `.gitignore`, `wp_enqueue_*`, dynamische Seitentitel und eine 404-Seite gleich zu Beginn einrichten, statt sie am Schluss nachzurüsten.
-- **Barrierefreiheit früh mitdenken:** `prefers-reduced-motion`, ARIA-Attribute und Bildgrössen direkt beim Bauen einer Funktion berücksichtigen, nicht erst in einer Überarbeitung.
-- **Datenschutz bei externen Ressourcen:** Schriften und andere Dateien von Anfang an lokal einbinden und nur die Schnitte laden, die wirklich gebraucht werden.
-- **Regelmässig testen:** Nach jeder grösseren Änderung im Browser (hell und dunkel, Mobile) und im Backend prüfen, statt viele Änderungen auf einmal zu testen.
-
-<!-- PRÜFEN: Entwurf. Streiche oder ändere, was nicht zu deiner Erfahrung passt. -->
+- **Grundlagen von Anfang an:** `.gitignore`, `wp_enqueue_*`, dynamische Seitentitel, Spracheinstellung und eine 404-Seite gleich zu Beginn einrichten, statt sie am Schluss nachzurüsten.
+- **Barrierefreiheit früh mitdenken:** `prefers-reduced-motion`, ARIA-Attribute, Überschriften und Bildgrössen direkt beim Bauen einer Funktion berücksichtigen.
+- **Inhalte sauber vorbereiten:** Fotos als JPG statt PNG hochladen und den Alt-Text direkt beim Hochladen setzen.
+- **Datenschutz bei externen Ressourcen:** Schriften und Daten von Dritten von Anfang an lokal oder über den Server laden.
+- **Regelmässig testen und pushen:** Nach jeder grösseren Änderung im Browser (hell und dunkel, Mobile) und im Backend prüfen und den Stand auf GitHub pushen, statt viele Änderungen auf einmal zu sammeln.
 
 ---
 
 ## Schwierigkeiten und Lösungen
-
-<!-- PRÜFEN: Entwurf auf Basis des Codes. Behalte die Punkte, die dich wirklich beschäftigt haben, und ergänze eigene Erfahrungen. -->
 
 ### Intro-Zeilen füllen genau die Breite
 **Problem:** Jede Intro-Zeile auf der Startseite soll genau die Breite des Containers füllen, unabhängig von Textlänge, Schrift und Stretch.<br>
@@ -403,67 +400,66 @@ Die Farben für den Dark Mode werden im Block `[data-theme="dark"]` direkt darun
 **Ursache:** Der Browser nimmt für den Übergang nur das Element mit `view-transition-name` auf, ohne den Zuschnitt durch Elternelemente. Am `<img>` wäre das rechteckige, unbeschnittene Foto geglitten.<br>
 **Lösung:** Der Name sitzt am `.image-wrap`, der das Bild in die Blob-Form schneidet und dreht.
 
+### Animationen fehlten beim Testen
+**Problem:** Beim Testen lief das Autoplay der Galerie nicht mehr, und beim Klick auf eine Projektkachel passierte kein Seitenübergang.<br>
+**Ursache:** Auf meinem Mac war «Bewegung reduzieren» eingeschaltet. Das Theme schaltet diese Animationen dann bewusst ab, so wie es gedacht ist.<br>
+**Lösung:** Kein Fehler im Code. Zum Testen habe ich die Einstellung unter Systemeinstellungen > Bedienungshilfen > Bewegung ausgeschaltet. Gelernt habe ich dabei, beide Fälle zu prüfen, mit und ohne reduzierte Bewegung.
+
 ### Reduzierte Bewegung wirkte beim Scroll Reveal nicht
 **Problem:** Mit «Bewegung reduzieren» blendeten die Module beim Scrollen trotzdem ein.<br>
 **Ursache:** Die Ausnahme stand im Reduced-Motion-Block weiter oben in `main.css`. Die Reveal-Regeln weiter unten hatten die gleiche Spezifität und gewannen.<br>
 **Lösung:** Das Scroll Reveal steht jetzt in `@media (prefers-reduced-motion: no-preference)` und gilt nur noch, wenn Bewegung erlaubt ist.
 
+### Nachrichten über das E-Mail-Signet fehlen im Backend
+**Problem:** Mails, die über das E-Mail-Signet (`mailto:`) kamen, erschienen nicht unter «Nachrichten».<br>
+**Ursache:** Ein `mailto:`-Link öffnet das Mailprogramm der Besucher:in, die Mail geht direkt in mein Postfach. WordPress bekommt davon nichts mit.<br>
+**Lösung:** Nur das Kontaktformular speichert Nachrichten in der Datenbank. Ich habe es auf der Seite «Kontakt» aktiviert, das Signet bleibt als zweiter Weg.
+
 ---
 
 ## Einsatz von KI
 
-<!-- PRÜFEN: Dieser Abschnitt muss ehrlich sein. Ergänze, wofür du KI sonst noch genutzt hast, und streiche, was nicht zutrifft. -->
+Für dieses Projekt habe ich Claude Code von Anthropic eingesetzt, direkt im Editor, vor allem für technische Anpassungen und für die Prüfung.
 
 **Wofür**
-- Claude als Unterstützung bei anspruchsvolleren CSS- und JavaScript-Techniken, etwa der Auto-Skalierung der Intro-Zeilen und dem Grain-Effekt. <!-- PRÜFEN: stimmt das so? -->
-- Claude Code für eine Überarbeitung am Schluss: doppeltes `<main>` entfernt, SVG-Upload abgesichert, dynamische Seitentitel, 404-Seite, lokale Schriften, Dark Mode ohne Aufblitzen, Barrierefreiheit (`aria-pressed`, reduzierte Bewegung, Bildgrössen), Einbinden über `wp_enqueue_*`, `.gitignore`. Die Aufgaben dafür habe ich vorgegeben.
-- Claude Code für die Erweiterungen nach dem Abgleich mit dem Bewertungsraster: eigene Datenbank-Tabellen, REST-Endpunkte, Applaus und Aufrufe, Kontaktformular mit Seite «Nachrichten», Modul «GitHub-Repos», View Transitions, SEO und strukturierte Daten. Den Plan und die Reihenfolge habe ich mit Claude Code erarbeitet und jeden Schritt einzeln freigegeben.
-- Claude Code für die Prüfung mit W3C-Validator und Lighthouse und die daraus folgenden Korrekturen (Überschriften, responsive Bilder, PNG zu JPG).
-- Claude Code für Alt-Texte der Bilder, die Standard-Beschreibung und die Screenshots in diesem README. <!-- PRÜFEN: Alt-Texte und Beschreibung durchgelesen und angepasst? -->
-- Claude Code für Struktur und erste Entwürfe dieses README.
+- **Technische Überarbeitung** nach einer Aufgabenliste, die ich vorgegeben habe: doppeltes `<main>` entfernt, SVG-Upload abgesichert, dynamische Seitentitel, 404-Seite, lokale Schriften, Dark Mode ohne Aufblitzen, Barrierefreiheit, Einbinden über `wp_enqueue_*`, `.gitignore`.
+- **Technische Erweiterungen** nach einem Abgleich mit dem Bewertungsraster: eigene Datenbank-Tabellen, REST-Endpunkte, Applaus und Aufrufe, Kontaktformular mit Seite «Nachrichten», Modul «GitHub-Repos», View Transitions, SEO und strukturierte Daten.
+- **Prüfung:** `php -l`, REST-Endpunkte mit `curl`, Mailversand über Mailpit, W3C-Validator und Lighthouse, dazu die Korrekturen daraus.
+- **Dokumentation:** technische Abschnitte dieses README und die Go-Live-Checkliste. Die Texte unter «Learnings» und «Schwierigkeiten und Lösungen» hat Claude Code aus dem Projektverlauf vorformuliert, ich habe sie geprüft und angepasst. Die Alt-Texte der Bilder und die Standard-Beschreibung hat Claude Code vorgeschlagen, ich habe sie geprüft.
 
 **Was ich selbst gemacht habe**
-- Konzept und Gestaltung des Portfolios <!-- PRÜFEN -->
-- Aufbau des Themes auf Basis des IM5-Starter-Themes, Module und Inhalte im Backend <!-- PRÜFEN -->
-- Entscheidungen bei Vorschlägen der KI, zum Beispiel `'rewrite' => false` statt den Eintrag nur zu entfernen
-- Entscheidungen zu den Erweiterungen: Kontaktformular ja, Applaus nur einmal pro Person, Aufrufzahlen öffentlich, Galerie ohne Autoplay bei reduzierter Bewegung <!-- PRÜFEN -->
-- Testen im Browser und im Backend, zum Beispiel ist mir dabei aufgefallen, dass die View Transitions bei «Bewegung reduzieren» bewusst ausfallen <!-- PRÜFEN -->
+- Konzept, Gestaltung und Inhalte des Portfolios: Typografie, Farben, Signet, Projekte und Texte.
+- Aufbau des Themes auf Basis des IM5-Starter-Themes mit Modulen, Post Type «Projekte», Getter-Struktur, Projektfeldern und Galerie (Git-Historie vom 19. und 20.10.2026, vor dem Einsatz von Claude Code).
+- Aufgaben, Regeln und alle Entscheidungen bei den Erweiterungen, zum Beispiel Kontaktformular ja, Applaus nur einmal pro Person, Aufrufzahlen öffentlich, kein Galerie-Autoplay bei reduzierter Bewegung.
 
 **Wie ich die Ergebnisse geprüft habe**
-- Änderungen im Code gelesen und nachvollzogen, PHP-Dateien mit `php -l` geprüft
-- Jeden Schritt einzeln geprüft und selbst committet, mit Commit-Nachrichten auf Deutsch
-- Automatische Tests während der Entwicklung: REST-Endpunkte mit `curl` (gültige, gesperrte und ungültige Anfragen), Mailversand über Mailpit, HTML mit dem W3C-Validator, Performance und Barrierefreiheit mit Lighthouse (siehe «Prüfung»)
-- Im Browser getestet: Startseite, Projektseite, 404-Seite, Dark Mode nach Reload, Netzwerk-Tab ohne Anfragen an Google <!-- PRÜFEN: erst eintragen, wenn du es wirklich getestet hast -->
-- Im Backend getestet: SVG-Upload als Admin und als Redaktor:in, Kategorien bei Projekten <!-- PRÜFEN: erst eintragen, wenn du es wirklich getestet hast -->
+- Claude Code hat nach jedem Schritt angehalten und zusammengefasst, was geändert wurde und warum. Ich habe die Änderungen angesehen und jeden Schritt selbst committet.
+- Im Browser getestet, unter anderem Startseite, Projektseiten, Galerie, Lightbox und die View Transitions in Chrome, mit und ohne «Bewegung reduzieren».
 
 ---
 
 ## Ressourcen
 
-<!--
-ANPASSEN: Weitere Tutorials, Videos, Kursunterlagen und Inspirationsquellen selbst nachtragen.
--->
-
-- IM5-Starter-Theme und Kursunterlagen, Modul IM5, FH Graubünden
+- IM5-Starter-Theme, Kursunterlagen und Semesterinformationen, Modul IM5, HS26, FH Graubünden
 - [Carbon Fields Dokumentation](https://docs.carbonfields.net/)
 - [WordPress Developer Reference](https://developer.wordpress.org/reference/), u. a. `register_post_type()`, `register_taxonomy()`, `register_nav_menus()`, `wp_enqueue_style()`, `wp_enqueue_script_module()`
 - [WordPress Theme Handbook: Template-Hierarchie](https://developer.wordpress.org/themes/basics/template-hierarchy/)
-- [MDN: `<dialog>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog)
-- [MDN: Intersection Observer API](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)
-- [MDN: `<feTurbulence>`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feTurbulence)
-- [MDN: `prefers-reduced-motion`](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion)
-- [Fontsource](https://fontsource.org/) und [Google Fonts](https://fonts.google.com/) als Quelle der Schriftdateien. Alle Schriften unter der [SIL Open Font License 1.1](https://openfontlicense.org/).
-- [Plugin «Safe SVG»](https://wordpress.org/plugins/safe-svg/)
 - [WordPress REST API Handbook: eigene Endpunkte](https://developer.wordpress.org/rest-api/extending-the-rest-api/adding-custom-endpoints/)
 - [WordPress Developer Reference: `wpdb`](https://developer.wordpress.org/reference/classes/wpdb/) und [`dbDelta()`](https://developer.wordpress.org/reference/functions/dbdelta/)
 - [WordPress Developer Reference: Transients API](https://developer.wordpress.org/apis/transients/) und [`wp_remote_get()`](https://developer.wordpress.org/reference/functions/wp_remote_get/)
 - [GitHub REST API: Repositories eines Kontos](https://docs.github.com/en/rest/repos/repos#list-repositories-for-a-user)
+- [MDN: `<dialog>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog)
+- [MDN: Intersection Observer API](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)
+- [MDN: `<feTurbulence>`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feTurbulence)
+- [MDN: `prefers-reduced-motion`](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion)
 - [MDN: View Transition API](https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API)
 - [MDN: Responsive Bilder (`srcset`, `sizes`)](https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images)
 - [schema.org](https://schema.org/) und [Google: Einführung in strukturierte Daten](https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data)
 - [The Open Graph protocol](https://ogp.me/)
 - [W3C Nu HTML Checker](https://validator.w3.org/nu/) und [Lighthouse](https://developer.chrome.com/docs/lighthouse/overview)
-- 
+- [Fontsource](https://fontsource.org/) und [Google Fonts](https://fonts.google.com/) als Quelle der Schriftdateien. Alle Schriften unter der [SIL Open Font License 1.1](https://openfontlicense.org/).
+- [Plugin «Safe SVG»](https://wordpress.org/plugins/safe-svg/)
+- [Claude](https://claude.ai/) und [Claude Code](https://claude.com/claude-code) von Anthropic (siehe «Einsatz von KI»)
 
 ---
 
