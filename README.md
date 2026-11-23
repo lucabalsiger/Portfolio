@@ -427,12 +427,12 @@ Für dieses Projekt habe ich Claude Code von Anthropic eingesetzt, direkt im Edi
 - **Technische Überarbeitung** nach einer Aufgabenliste, die ich vorgegeben habe: doppeltes `<main>` entfernt, SVG-Upload abgesichert, dynamische Seitentitel, 404-Seite, lokale Schriften, Dark Mode ohne Aufblitzen, Barrierefreiheit, Einbinden über `wp_enqueue_*`, `.gitignore`.
 - **Technische Erweiterungen** nach einem Abgleich mit dem Bewertungsraster: eigene Datenbank-Tabellen, REST-Endpunkte, Applaus und Aufrufe, Kontaktformular mit Seite «Nachrichten», Modul «GitHub-Repos», View Transitions, SEO und strukturierte Daten.
 - **Prüfung:** `php -l`, REST-Endpunkte mit `curl`, Mailversand über Mailpit, W3C-Validator und Lighthouse, dazu die Korrekturen daraus.
-- **Dokumentation:** technische Abschnitte dieses README und die Go-Live-Checkliste. Die Texte unter «Learnings» und «Schwierigkeiten und Lösungen» hat Claude Code aus dem Projektverlauf vorformuliert, ich habe sie geprüft und angepasst. Die Alt-Texte der Bilder und die Standard-Beschreibung hat Claude Code vorgeschlagen, ich habe sie geprüft.
 
 **Was ich selbst gemacht habe**
 - Konzept, Gestaltung und Inhalte des Portfolios: Typografie, Farben, Signet, Projekte und Texte.
 - Aufbau des Themes auf Basis des IM5-Starter-Themes mit Modulen, Post Type «Projekte», Getter-Struktur, Projektfeldern und Galerie (Git-Historie vom 19. und 20.10.2026, vor dem Einsatz von Claude Code).
 - Aufgaben, Regeln und alle Entscheidungen bei den Erweiterungen, zum Beispiel Kontaktformular ja, Applaus nur einmal pro Person, Aufrufzahlen öffentlich, kein Galerie-Autoplay bei reduzierter Bewegung.
+- Dokumentation: Dieses README.
 
 **Wie ich die Ergebnisse geprüft habe**
 - Claude Code hat nach jedem Schritt angehalten und zusammengefasst, was geändert wurde und warum. Ich habe die Änderungen angesehen und jeden Schritt selbst committet.
