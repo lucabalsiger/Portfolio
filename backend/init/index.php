@@ -145,3 +145,23 @@ function block_disabled_design_pages (): void {
 }
 
 add_action('admin_init', 'block_disabled_design_pages');
+
+// -> hide usernames: WordPress shows them in the REST API, on author pages and in the sitemap.
+//    Login attacks then only have to guess the password. The site has no author pages anyway.
+add_filter('rest_endpoints', function (array $endpoints) {
+    if (!is_user_logged_in()) {
+        unset($endpoints['/wp/v2/users'], $endpoints['/wp/v2/users/(?P<id>[\d]+)']);
+    }
+    return $endpoints;
+});
+
+add_action('template_redirect', function () {
+    if (is_author() || isset($_GET['author'])) {
+        wp_safe_redirect(home_url('/'), 301);
+        exit;
+    }
+});
+
+add_filter('wp_sitemaps_add_provider', function ($provider, string $name) {
+    return $name === 'users' ? false : $provider;
+}, 10, 2);

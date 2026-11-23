@@ -310,6 +310,7 @@ Jede Seite hat genau eine `h1` und überspringt keine Ebene. `render_modules()` 
 - **Externe Links:** öffnen in einem neuen Tab mit `rel="noopener noreferrer"` (Hilfsfunktion `external_link_attrs()`).
 - **SVG-Upload:** nur für Benutzer:innen mit dem Recht `manage_options` (Administrator:innen), weil SVG-Dateien JavaScript enthalten können. Empfohlen ist zusätzlich das Plugin «Safe SVG», das SVG-Dateien beim Upload bereinigt.
 - **Backend:** Theme-Editor, Website-Editor und Schriftbibliothek sind aus dem Menü entfernt und auch über die direkte URL gesperrt.
+- **Benutzernamen verborgen:** WordPress zeigt Benutzernamen sonst über die REST-API (`/wp-json/wp/v2/users`), Autorenseiten (`/?author=1`) und die Sitemap. Für Besucher:innen ist der REST-Endpunkt gesperrt, Autorenseiten leiten auf die Startseite um, und die Benutzer-Sitemap ist abgeschaltet (`backend/init/index.php`). Login-Angriffe müssen so Benutzername und Passwort erraten.
 - **Datenbank:** Alle eigenen Abfragen laufen über `$wpdb->prepare()`. Spaltennamen kommen nur aus festen Listen, nie aus einer Anfrage.
 - **REST-Endpunkte:** Sperren gegen Mehrfachzählung und ein Limit für das Kontaktformular. IP-Adressen werden dafür nur gehasht (`wp_hash()`) und befristet als Transient gespeichert.
 - **Kontaktformular:** Honeypot, signierter Zeitstempel, Prüfung aller Felder auf dem Server, `Reply-To` nur mit geprüfter Adresse (Schutz vor Header-Injection).
