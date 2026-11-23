@@ -293,22 +293,24 @@ Jede Seite hat genau eine `h1` und überspringt keine Ebene. `render_modules()` 
 - **Aktionen im Backend** (Statistik zurücksetzen, Nachricht löschen): nur für Admins und nur mit gültigem Nonce.
 
 ### Prüfung
-Stand 23.11.2026, lokal mit Local (HTTP, ohne Cache).
+Stand 23.11.2026. HTML und PHP lokal geprüft, Lighthouse auf der Live-Seite `https://lucabalsiger.ch`.
 
 **HTML (W3C Nu Validator):** keine Fehler auf Startseite, Projektseite, Über mich, Kontakt, Projekte und 404. Einzige Meldung ist `view-transition-name` «doesn't exist»: ein Fehlalarm, weil die CSS-Prüfung des Validators die Eigenschaft aus CSS View Transitions Level 1 noch nicht kennt.
 
 **PHP:** `php -l` ohne Fehler für alle PHP-Dateien des Themes.
 
-**Lighthouse 12.6:**
+**Lighthouse 12.6** (Live-Seite):
 
-| Seite | Performance | Barrierefreiheit | Best Practices | SEO |
-|---|---|---|---|---|
-| Startseite (Mobile) | 100 | 100 | 79 | 100 |
-| Projekt ileve district (Mobile) | 99 | 100 | 79 | 100 |
-| Projekt isolove (Mobile) | 99 | 100 | 79 | 100 |
-| Projekt isolove (Desktop) | 100 | 100 | 79 | 100 |
+| Seite | Performance | Barrierefreiheit | Best Practices | SEO | LCP |
+|---|---|---|---|---|---|
+| Startseite (Mobile) | 100 | 100 | 100 | 100 | 1,0 s |
+| Startseite (Desktop) | 100 | 100 | 100 | 100 | 0,3 s |
+| Projekt ileve district (Mobile) | 90 | 100 | 100 | 100 | 1,3 s |
+| Projekt isolove (Mobile) | 100 | 100 | 100 | 100 | 1,4 s |
+| Projekt isolove (Desktop) | 100 | 100 | 100 | 100 | 0,4 s |
+| Kontakt (Mobile) | 100 | 100 | 100 | 100 | 1,1 s |
 
-Best Practices liegt lokal bei 79, weil Local ohne HTTPS läuft. Auf dem Server mit SSL-Zertifikat fällt dieser Abzug weg. <!-- ANPASSEN: nach dem Go-Live mit der Live-URL nochmals messen und die Tabelle aktualisieren. -->
+Die 90 bei ileve district kommt vom Speed Index, der bei der Galerie von Messung zu Messung schwankt. Lokal lag Best Practices noch bei 79, weil Local ohne HTTPS läuft. Auf dem Server mit SSL-Zertifikat ist dieser Abzug weggefallen.
 
 ---
 
