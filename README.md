@@ -9,6 +9,29 @@ Live: [lucabalsiger.ch](https://lucabalsiger.ch)
 
 ---
 
+## Projektidee
+
+Aus dem Proposal zu Beginn des Semesters.
+
+**Projekttitel**<br>
+Persönliches Portfolio mit eigenem WordPress-Theme
+
+**Fragestellung**<br>
+Wie lässt sich ein selbst gestaltetes Portfolio-Design ohne Pagebuilder eins zu eins als eigenes WordPress-Theme umsetzen, sodass die Inhalte trotzdem bequem über das CMS gepflegt werden können und die Website professionell, sicher und auffindbar ist?
+
+**Erwartete Ergebnisse**<br>
+Erwartet wird eine funktionsfähige Portfolio-Website auf Basis eines eigenen Figma-Designs. Vor der Umsetzung wird ein CMS-Konzept erstellt, das festlegt, wie das Design in WordPress abgebildet wird. Das Theme wird mit HTML, CSS und PHP von Grund auf entwickelt. Projekte werden als Custom Post Type mit eigenen Feldern (z. B. Kunde, Jahr, Disziplin, Bilder) erfasst und über individuelle Templates und Loops dynamisch ausgegeben. Die Website umfasst eine Startseite, eine Projektübersicht mit Filter nach Disziplin, Projekt-Detailseiten, eine Über-mich-Seite sowie Impressum und Datenschutz. Sie ist responsive, für Suchmaschinen optimiert, nach gängigen Sicherheitsstandards abgesichert, mit sinnvollen Plugins ergänzt und wird auf einer Subdomain live gestellt. Code und Dokumentation (Prozess, Learnings, Schwierigkeiten) liegen in einem öffentlichen GitHub-Repository.
+
+**Geplante Methoden und Technologien**<br>
+HTML/CSS, JavaScript, PHP, WordPress, Figma
+
+**Umsetzung im Vergleich zum Proposal**
+- **Wie geplant:** eigenes Theme ohne Pagebuilder auf Basis des CMS-Konzepts, Custom Post Type «Projekte» mit eigenen Feldern, Startseite, Projektübersicht, Projekt-Detailseiten, Über mich, Impressum und Datenschutz, responsive, SEO, Sicherheit, öffentliches Repository.
+- **Anders als geplant:** Die Projektfelder sind Jahr, Untertitel, Beschrieb, Galerie und Link. Die Disziplinen werden als Projektkategorien gepflegt und auf den Kacheln als Tags angezeigt, einen Filter nach Disziplin gibt es nicht. Live ist die Seite auf der Hauptdomain `lucabalsiger.ch` statt auf einer Subdomain. Statt mehrerer Plugins ist nur Carbon Fields im Einsatz, SEO und Mailversand sind direkt im Theme gelöst.
+- **Zusätzlich umgesetzt:** eigene Datenbank-Tabellen und REST-Endpunkte für Aufrufe, Applaus und das Kontaktformular, Seite «Nachrichten» und Statistik im Backend, Modul «GitHub-Repos» über die GitHub-API, Seitenübergänge mit View Transitions, Dark Mode.
+
+---
+
 ## Live-Version
 
 - Webseite: [https://lucabalsiger.ch](https://lucabalsiger.ch)
