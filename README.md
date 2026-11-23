@@ -1,7 +1,9 @@
 # Portfolio von Luca Balsiger
 > Persönliches WordPress-Theme. Entwickelt im Modul IM5, HS26, FH Graubünden, auf Basis des IM5-Starter-Themes.
 
-Das Portfolio zeigt ausgewählte Projekte von Luca Balsiger in einem eigenen WordPress-Theme ohne Page Builder und ohne CSS-Framework. Seiten werden im Backend aus Modulen zusammengesetzt, Projekte über einen eigenen Post Type gepflegt. Prägend sind die typografischen Intro-Zeilen auf der Startseite, die sich automatisch an die Breite anpassen, sowie ein Dark Mode und lokal eingebundene Schriften ohne Anfragen an Dritte.
+Das Portfolio zeigt ausgewählte Projekte von Luca Balsiger in einem eigenen WordPress-Theme ohne Page Builder und ohne CSS-Framework. Seiten werden im Backend aus Modulen zusammengesetzt, Projekte über einen eigenen Post Type gepflegt. Prägend sind die typografischen Intro-Zeilen auf der Startseite, die sich automatisch an die Breite anpassen, Seitenübergänge, bei denen das Projektbild aus der Kachel in die Projektseite gleitet, sowie ein Dark Mode und lokal eingebundene Schriften ohne Anfragen an Dritte.
+
+Interaktiv wird das Portfolio durch eigene Datenbank-Tabellen und REST-Endpunkte: Besucher:innen können Projekten Applaus geben und über ein Kontaktformular mit Spam-Schutz schreiben. Aufrufe, Applaus und Nachrichten erscheinen im Backend. Ein Modul zeigt die aktuellen GitHub-Repos über die GitHub-API.
 
 <!-- ANPASSEN: Live-URL eintragen, z. B. https://deinedomain.ch -->
 Live: _URL folgt_
@@ -15,13 +17,32 @@ Live: _URL folgt_
 
 ---
 
+## Screenshots
+
+| Startseite | Projektseite |
+|---|---|
+| ![Startseite mit typografischen Intro-Zeilen und rotem Signet](docs/screenshots/startseite.jpg) | ![Projektseite isolove mit Titel und Herobild](docs/screenshots/projektseite.jpg) |
+
+| Dark Mode | Mobile |
+|---|---|
+| ![Startseite im Dark Mode](docs/screenshots/dark-mode.jpg) | ![Startseite auf einem Smartphone, 390 px breit](docs/screenshots/mobile.jpg) |
+
+<!-- Aufgenommen am 23.11.2026 mit Chrome (Headless), lokal. Nach dem Go-Live bei Bedarf ersetzen. -->
+
+---
+
 ## Tech-Stack
 
 - **WordPress** mit eigenem Theme (klassisches PHP-Theme, kein Block-Theme)
 - **PHP 8.0+** (Union Types, `match`, `str_contains`)
 - **Carbon Fields** für alle Inhaltsfelder, eingebunden als **WordPress-Plugin** (`wp-content/plugins/carbon-fields`), nicht über Composer. Das Theme lädt Carbon Fields nicht selbst, sondern registriert seine Felder über den Hook `carbon_fields_register_fields`.
 - **HTML** und **CSS** ohne Framework, mit CSS-Variablen und verschachtelten Selektoren
-- **Vanilla JavaScript** als ES-Modul (`type="module"`), ohne Bibliotheken und ohne Build-Schritt
+- **Vanilla JavaScript** als ES-Modul (`type="module"`), ohne Bibliotheken und ohne Build-Schritt, mit `fetch()` für die REST-Endpunkte
+- **Eigene Datenbank-Tabellen** über `$wpdb` und `dbDelta()`: Aufrufe und Applaus pro Projekt, Nachrichten aus dem Kontaktformular
+- **WordPress REST API** mit eigenen Endpunkten unter `/wp-json/portfolio/v1/`
+- **GitHub REST API**, serverseitig abgerufen mit `wp_remote_get()` und zwischengespeichert als Transient
+- **View Transitions API** für Seitenübergänge zwischen Projektübersicht und Projektseite
+- **Strukturierte Daten** (JSON-LD nach schema.org) und Open Graph für Suchmaschinen und Social Media
 - **Lokale Webfonts** im Format woff2: Archivo, Space Grotesk, Big Shoulders Display, Barlow Condensed
 
 ---
@@ -38,9 +59,13 @@ Live: _URL folgt_
 1. Den Theme-Ordner `portfolio` nach `wp-content/themes/` legen.
 2. Im Backend unter **Design > Themes** das Theme «Portfolio von Luca Balsiger» aktivieren.
 3. Unter **Design > Menüs** zwei Menüs anlegen und den Positionen «Hauptnavigation» und «Rechtliches» zuweisen.
-4. Im Menüpunkt **Globales** Logo, E-Mail-Adresse, Footer-Text und Socials ausfüllen.
+4. Im Menüpunkt **Globales** Logo, E-Mail-Adresse, Footer-Text, Socials, GitHub-Benutzername, Standard-Beschreibung und Vorschaubild ausfüllen.
 5. Unter **Einstellungen > Lesen** eine statische Seite als Startseite festlegen.
-6. Einmal **Einstellungen > Permalinks** öffnen und speichern, damit die URLs der Projekte (`/projekt/...`) aktiv sind.
+6. Unter **Einstellungen > Allgemein** die Sprache «Deutsch (Schweiz)» wählen, damit die Seite `lang="de-CH"` ausgibt.
+7. Unter **Einstellungen > Datenschutz** die Datenschutzseite auswählen. Das Kontaktformular verlinkt sie.
+8. Einmal **Einstellungen > Permalinks** öffnen und speichern, damit die URLs der Projekte (`/projekt/...`) aktiv sind.
+
+Die eigenen Datenbank-Tabellen legt das Theme beim ersten Seitenaufruf selbst an, dafür ist kein Schritt nötig.
 
 Eine ausführliche Anleitung für Hosting und Entwicklungsumgebung steht in [`manuals/installation.md`](manuals/installation.md).
 
@@ -90,6 +115,9 @@ Alle Dateien für die Darstellung der Webseite.
 | `views/pages/` | Templates für Seiten-, Projekt- und 404-Ansicht |
 | `views/partials/` | Wiederverwendbare Teilkomponenten (Badge, Galerie) |
 | `views/teaser/` | Kachelansicht für Projekte in der Übersicht |
+
+### 📸 Ordner `docs`
+Screenshots für dieses README (`docs/screenshots/`). Das Vorschaubild für die Theme-Übersicht im Backend liegt als `screenshot.png` im Hauptordner, wie WordPress es verlangt.
 
 ### 📚 Ordner `manuals`
 Anleitungen für häufige Erweiterungen und Einrichtungsschritte. Die Anleitungen sind so geschrieben, dass auch eine KI sie lesen und bei der Umsetzung unterstützen kann.
@@ -316,6 +344,10 @@ Die Farben für den Dark Mode werden im Block `[data-theme="dark"]` direkt darun
 - **Post Types und Taxonomien:** `public`, `publicly_queryable` und `rewrite` steuern, ob und unter welcher URL Inhalte im Frontend erreichbar sind. Lässt man `rewrite` weg, gilt der Standard `true` und WordPress erzeugt trotzdem URLs.
 - **Sicherheit:** Jede Ausgabe wird passend escaped (`esc_html()`, `esc_url()`, `esc_attr()`, `wp_kses_post()`). SVG-Dateien können JavaScript enthalten und dürfen deshalb nur von Admins hochgeladen werden.
 - **CSS ohne Framework:** Mit Custom Properties lassen sich Farben, Abstände und der Dark Mode zentral steuern. Bei den Mobile-Regeln habe ich gemerkt, wie wichtig die Spezifität von Selektoren ist.
+- **Eigene Datenbank-Tabellen:** Mit `dbDelta()` und einer gespeicherten Versionsnummer legt sich eine Tabelle auf jedem Server selbst an. Jede Abfrage läuft über `$wpdb->prepare()`, Tabellennamen über den Platzhalter `%i`.
+- **REST API:** Mit `register_rest_route()` wird WordPress zum Backend für eigene Interaktionen. Öffentliche Endpunkte brauchen eigenen Schutz gegen Missbrauch, zum Beispiel Sperren per Transient.
+- **Externe APIs:** Daten von GitHub serverseitig laden und zwischenspeichern ist schneller, schont das API-Limit und schickt keine Daten der Besucher:innen an Dritte.
+- **Messen statt raten:** Lighthouse hat gezeigt, dass nicht das Herobild, sondern die Galerie im Hintergrund die Projektseite langsam macht.
 
 **Was ich beim nächsten Projekt anders machen würde**
 - **Grundlagen von Anfang an:** `.gitignore`, `wp_enqueue_*`, dynamische Seitentitel und eine 404-Seite gleich zu Beginn einrichten, statt sie am Schluss nachzurüsten.
@@ -356,6 +388,26 @@ Die Farben für den Dark Mode werden im Block `[data-theme="dark"]` direkt darun
 **Ursache:** Die Templates im Hauptordner und die Views in `frontend/views/pages/` öffneten beide ein `<main>`.<br>
 **Lösung:** Die Views verwenden jetzt `<div data-page="…">`. Das CSS nutzt nur `[data-page]` ohne Tag, deshalb blieb die Darstellung gleich.
 
+### Applaus nur einmal pro Person, ohne Cookies
+**Problem:** Applaus und Aufrufe sollten sich nicht beliebig hochklicken lassen, ohne Cookie-Banner und ohne personenbezogene Daten dauerhaft zu speichern.<br>
+**Ursache:** Ein öffentlicher REST-Endpunkt nimmt jede Anfrage an. Eine Anmeldung gibt es für Besucher:innen nicht.<br>
+**Lösung:** Zwei Ebenen: Der Server merkt sich pro Person und Projekt eine Sperre als Transient (Aufruf 30 Minuten, Applaus 24 Stunden), die IP-Adresse nur gehasht. Dauerhaft merkt sich der Browser im `localStorage`, wo schon applaudiert wurde.
+
+### Projektseite auf dem Handy langsam
+**Problem:** Lighthouse meldete auf der Projektseite einen Largest Contentful Paint von 7,4 Sekunden auf Mobile.<br>
+**Ursache:** Der Filmstreifen der Galerie lud die Originaldateien, darunter Screenshots als PNG mit bis zu 1,7 MB, und das Herobild immer in 2800 px Breite.<br>
+**Lösung:** `srcset` und `sizes` für Galerie und Herobild, das Original lädt erst die Lightbox. `fetchpriority="high"` für das Herobild. Die Screenshots als JPG statt PNG. Danach 1,6 bis 2,1 Sekunden und Performance 99 bis 100.
+
+### Bild gleitet nicht in die Blob-Form
+**Problem:** Beim Seitenübergang (View Transition) sollte das Projektbild aus der schrägen Kachel in den Hero gleiten.<br>
+**Ursache:** Der Browser nimmt für den Übergang nur das Element mit `view-transition-name` auf, ohne den Zuschnitt durch Elternelemente. Am `<img>` wäre das rechteckige, unbeschnittene Foto geglitten.<br>
+**Lösung:** Der Name sitzt am `.image-wrap`, der das Bild in die Blob-Form schneidet und dreht.
+
+### Reduzierte Bewegung wirkte beim Scroll Reveal nicht
+**Problem:** Mit «Bewegung reduzieren» blendeten die Module beim Scrollen trotzdem ein.<br>
+**Ursache:** Die Ausnahme stand im Reduced-Motion-Block weiter oben in `main.css`. Die Reveal-Regeln weiter unten hatten die gleiche Spezifität und gewannen.<br>
+**Lösung:** Das Scroll Reveal steht jetzt in `@media (prefers-reduced-motion: no-preference)` und gilt nur noch, wenn Bewegung erlaubt ist.
+
 ---
 
 ## Einsatz von KI
@@ -365,15 +417,22 @@ Die Farben für den Dark Mode werden im Block `[data-theme="dark"]` direkt darun
 **Wofür**
 - Claude als Unterstützung bei anspruchsvolleren CSS- und JavaScript-Techniken, etwa der Auto-Skalierung der Intro-Zeilen und dem Grain-Effekt. <!-- PRÜFEN: stimmt das so? -->
 - Claude Code für eine Überarbeitung am Schluss: doppeltes `<main>` entfernt, SVG-Upload abgesichert, dynamische Seitentitel, 404-Seite, lokale Schriften, Dark Mode ohne Aufblitzen, Barrierefreiheit (`aria-pressed`, reduzierte Bewegung, Bildgrössen), Einbinden über `wp_enqueue_*`, `.gitignore`. Die Aufgaben dafür habe ich vorgegeben.
+- Claude Code für die Erweiterungen nach dem Abgleich mit dem Bewertungsraster: eigene Datenbank-Tabellen, REST-Endpunkte, Applaus und Aufrufe, Kontaktformular mit Seite «Nachrichten», Modul «GitHub-Repos», View Transitions, SEO und strukturierte Daten. Den Plan und die Reihenfolge habe ich mit Claude Code erarbeitet und jeden Schritt einzeln freigegeben.
+- Claude Code für die Prüfung mit W3C-Validator und Lighthouse und die daraus folgenden Korrekturen (Überschriften, responsive Bilder, PNG zu JPG).
+- Claude Code für Alt-Texte der Bilder, die Standard-Beschreibung und die Screenshots in diesem README. <!-- PRÜFEN: Alt-Texte und Beschreibung durchgelesen und angepasst? -->
 - Claude Code für Struktur und erste Entwürfe dieses README.
 
 **Was ich selbst gemacht habe**
 - Konzept und Gestaltung des Portfolios <!-- PRÜFEN -->
 - Aufbau des Themes auf Basis des IM5-Starter-Themes, Module und Inhalte im Backend <!-- PRÜFEN -->
 - Entscheidungen bei Vorschlägen der KI, zum Beispiel `'rewrite' => false` statt den Eintrag nur zu entfernen
+- Entscheidungen zu den Erweiterungen: Kontaktformular ja, Applaus nur einmal pro Person, Aufrufzahlen öffentlich, Galerie ohne Autoplay bei reduzierter Bewegung <!-- PRÜFEN -->
+- Testen im Browser und im Backend, zum Beispiel ist mir dabei aufgefallen, dass die View Transitions bei «Bewegung reduzieren» bewusst ausfallen <!-- PRÜFEN -->
 
 **Wie ich die Ergebnisse geprüft habe**
 - Änderungen im Code gelesen und nachvollzogen, PHP-Dateien mit `php -l` geprüft
+- Jeden Schritt einzeln geprüft und selbst committet, mit Commit-Nachrichten auf Deutsch
+- Automatische Tests während der Entwicklung: REST-Endpunkte mit `curl` (gültige, gesperrte und ungültige Anfragen), Mailversand über Mailpit, HTML mit dem W3C-Validator, Performance und Barrierefreiheit mit Lighthouse (siehe «Prüfung»)
 - Im Browser getestet: Startseite, Projektseite, 404-Seite, Dark Mode nach Reload, Netzwerk-Tab ohne Anfragen an Google <!-- PRÜFEN: erst eintragen, wenn du es wirklich getestet hast -->
 - Im Backend getestet: SVG-Upload als Admin und als Redaktor:in, Kategorien bei Projekten <!-- PRÜFEN: erst eintragen, wenn du es wirklich getestet hast -->
 
@@ -395,6 +454,15 @@ ANPASSEN: Weitere Tutorials, Videos, Kursunterlagen und Inspirationsquellen selb
 - [MDN: `prefers-reduced-motion`](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion)
 - [Fontsource](https://fontsource.org/) und [Google Fonts](https://fonts.google.com/) als Quelle der Schriftdateien. Alle Schriften unter der [SIL Open Font License 1.1](https://openfontlicense.org/).
 - [Plugin «Safe SVG»](https://wordpress.org/plugins/safe-svg/)
+- [WordPress REST API Handbook: eigene Endpunkte](https://developer.wordpress.org/rest-api/extending-the-rest-api/adding-custom-endpoints/)
+- [WordPress Developer Reference: `wpdb`](https://developer.wordpress.org/reference/classes/wpdb/) und [`dbDelta()`](https://developer.wordpress.org/reference/functions/dbdelta/)
+- [WordPress Developer Reference: Transients API](https://developer.wordpress.org/apis/transients/) und [`wp_remote_get()`](https://developer.wordpress.org/reference/functions/wp_remote_get/)
+- [GitHub REST API: Repositories eines Kontos](https://docs.github.com/en/rest/repos/repos#list-repositories-for-a-user)
+- [MDN: View Transition API](https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API)
+- [MDN: Responsive Bilder (`srcset`, `sizes`)](https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images)
+- [schema.org](https://schema.org/) und [Google: Einführung in strukturierte Daten](https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data)
+- [The Open Graph protocol](https://ogp.me/)
+- [W3C Nu HTML Checker](https://validator.w3.org/nu/) und [Lighthouse](https://developer.chrome.com/docs/lighthouse/overview)
 - 
 
 ---

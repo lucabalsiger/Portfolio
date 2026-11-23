@@ -7,10 +7,10 @@
 > - 🟢 could
 
 ### SEO
-- [ ] 🟠 Ich habe [Yoast SEO](#yoast-seo) installiert, aktiviert und konfiguriert.
+- [ ] 🟢 Ich habe [Yoast SEO](#yoast-seo) installiert, aktiviert und konfiguriert. Optional: Das Theme gibt Beschreibung, Open Graph und strukturierte Daten selbst aus (`backend/seo/`) und schaltet diese Ausgabe ab, sobald Yoast aktiv ist.
 - [ ] 🔴 Ich erlaube in den Einstellungen das Crawlen der Webseite (Einstellungen > Lesen).
 - [ ] 🔴 Ich habe eine korrekte robots.txt Datei. 
-- [ ] 🟠 Ich habe eine korrekte sitemap.xml Datei.
+- [ ] 🟠 Ich habe eine korrekte sitemap.xml Datei. Ohne Yoast erzeugt WordPress sie selbst unter `/wp-sitemap.xml`.
 - [ ] 🟢 Ich habe eine korrekte llms.txt Datei.
 
 ### Security
@@ -37,6 +37,44 @@
 ### Final Touches
 - [ ] 🔴 Basic-Auth ist entfernt.
 - [ ] 🟢 Ich habe den [Uptime-Robot](#uptime-robot) installiert und meine Webseite hinzugefügt.
+
+## Checkliste für dieses Theme
+Punkte, die nur dieses Theme betreffen: eigene Datenbank-Tabellen, REST-Endpunkte, Kontaktformular, GitHub-Modul und SEO-Ausgabe.
+
+### Server und Umzug
+- [ ] 🔴 Der Hoster bietet PHP 8.0 oder neuer und WordPress 6.5 oder neuer.
+- [ ] 🔴 Das Plugin Carbon Fields ist installiert und aktiviert.
+- [ ] 🔴 Datenbank und Uploads sind umgezogen (z. B. mit «WP Migrate» oder «All-in-One WP Migration»), mit Suchen und Ersetzen von `portfolio.local` auf die neue Domain. Die eigenen Tabellen `wp_portfolio_stats` und `wp_portfolio_messages` kommen mit, solange sie dasselbe Präfix wie die übrigen Tabellen haben.
+- [ ] 🔴 Ich habe einmal Einstellungen > Permalinks geöffnet und gespeichert, damit `/projekt/...` und `/wp-json/...` funktionieren.
+- [ ] 🔴 Unter `https://meinedomain.ch/wp-json/portfolio/v1/` antwortet die REST-API mit JSON und nicht mit einem Fehler.
+- [ ] 🟠 Unter Einstellungen > Allgemein ist die Sprache «Deutsch (Schweiz)» gesetzt (im Quelltext steht `<html lang="de-CH">`).
+
+### Daten aufräumen
+- [ ] 🔴 Ich habe auf dem Dashboard im Widget «Projekte: Aufrufe und Applaus» die Statistik zurückgesetzt, damit keine Testzahlen von lokal online stehen.
+- [ ] 🟠 Unter **Nachrichten** sind alle Testnachrichten gelöscht.
+
+### Kontaktformular und Mail
+- [ ] 🔴 Ich habe das Kontaktformular auf der Live-Seite ausgefüllt (nach mindestens 3 Sekunden) und die Mail ist an der Adresse aus «Globales» angekommen.
+- [ ] 🟠 Falls keine Mail ankommt: Plugin «WP Mail SMTP» installieren und mit dem Postfach des Hosters verbinden. Viele Hoster stellen Mails von `wp_mail()` ohne SMTP nicht zuverlässig zu.
+- [ ] 🟠 Ein Caching-Plugin speichert Seiten höchstens 24 Stunden. Sonst ist der Zeitstempel im Formular abgelaufen und Besucher:innen sehen «das formular ist abgelaufen». Alternativ die Kontaktseite vom Cache ausnehmen.
+
+### Rechtliches für dieses Theme
+- [ ] 🔴 Die Datenschutzerklärung beschreibt das **Kontaktformular**: Name, E-Mail und Nachricht werden in der Datenbank gespeichert und per E-Mail weitergeleitet, nur um die Anfrage zu beantworten, und bleiben gespeichert, bis ich sie lösche.
+- [ ] 🔴 Die Datenschutzerklärung beschreibt **Aufrufe und Applaus**: Gezählt wird anonym, ohne Cookies. Zum Schutz vor Missbrauch wird die IP-Adresse höchstens 24 Stunden als nicht umkehrbarer Hash gespeichert.
+- [ ] 🟠 Die Datenschutzerklärung erwähnt den **lokalen Speicher im Browser** (`localStorage`): gewählter Dark Mode und die Projekte mit Applaus. Diese Angaben verlassen den Browser nicht.
+- [ ] 🟠 Die Datenschutzerklärung hält fest, dass Schriften lokal geladen werden und die GitHub-Repos über den Server abgerufen werden, also keine Daten der Besucher:innen an Google oder GitHub gehen.
+- [ ] 🔴 Die Datenschutzseite ist unter Einstellungen > Datenschutz ausgewählt. Der Hinweis im Kontaktformular verlinkt genau diese Seite.
+
+### Inhalte und Einstellungen
+- [ ] 🟠 Unter «Globales» sind E-Mail-Adresse, GitHub-Benutzername, Standard-Beschreibung und Vorschaubild ausgefüllt.
+- [ ] 🟠 Alle verwendeten Bilder haben einen Alternativtext (Medien > Mediathek).
+- [ ] 🟠 Das Plugin «Safe SVG» ist installiert, falls SVG-Dateien hochgeladen werden.
+
+### Nach dem Go-Live prüfen
+- [ ] 🟠 Lighthouse mit der Live-URL ausgeführt und die Tabelle «Prüfung» im README aktualisiert.
+- [ ] 🟢 Die Vorschau beim Teilen geprüft, z. B. mit dem [LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/).
+- [ ] 🟢 Die strukturierten Daten mit dem [Rich Results Test von Google](https://search.google.com/test/rich-results) geprüft.
+- [ ] 🟢 Applaus auf einer Projektseite in einem privaten Fenster getestet, danach die Statistik nochmals zurückgesetzt.
 
 ## Checkliste pro Tools
 
@@ -69,7 +107,7 @@
 - [ ] User Security > User Accounts > Enforce strong password > **Aktivieren**
 - [ ] User Security > Login Lockout > **Aktivieren**
 - [ ] User Security > Force Logout > **Aktivieren**
-- [ ] Database-Security > Database Prefix > **Change database prefix**
+- [ ] Database-Security > Database Prefix > **Change database prefix**. Danach prüfen, ob auch `portfolio_stats` und `portfolio_messages` das neue Präfix haben (z. B. in phpMyAdmin). Falls nicht, beide Tabellen von Hand umbenennen. Die Option `portfolio_db_version` nur löschen, wenn die Tabellen leer sein dürfen: Dann legt das Theme sie neu und leer an.
 - [ ] File Security > File Permissions > **WP-Config Permission setzen**
 - [ ] File Security > File Protections > Delete WP default files > **Aktivieren**
 - [ ] File Security > File Protections > Prevent hotlinking > **Aktivieren**
@@ -85,6 +123,7 @@
 - [ ] Firewall > .htaccess rules > Listing directory content > **Aktivieren**
 - [ ] Brute Force > Rename Login Page > **Aktivieren und neuer Pfad notieren**
 - [ ] Brute Force > Honey Pot > **Beide aktivieren**
+- [ ] 🚨 Die REST-API **nicht** für nicht angemeldete Besucher:innen sperren (Option «Disallow unauthorized REST requests» o. ä.). Applaus, Aufrufe und Kontaktformular laufen über `/wp-json/portfolio/v1/`. Falls die Option nötig ist, `portfolio/v1` als Ausnahme eintragen.
 
 ### Updraft-Plus
 > [Updraft-Plus](https://wordpress.org/plugins/updraftplus/)
@@ -115,8 +154,7 @@
 - [ ] Texte übersetzen
 - [ ] Empty Cookie Categories > **Hide... auswählen**
 - [ ] Floating settings button > **Deaktivieren**
-- [ ] In text.php Modul das hier `<?= wpautop($data['text']); ?>` mit diesem Code ersetzen:
-  `<?= apply_filters('the_content',$data['text']); ?>`
+- [ ] Damit der Shortcode in einem Text-Modul funktioniert: In `backend/helpers/index.php` in der Funktion `the_rich_text()` den Aufruf `wpautop($text)` durch `do_shortcode(wpautop($text))` ersetzen. `wp_kses_post()` bleibt aussen herum, damit weiterhin nur erlaubtes HTML ausgegeben wird.
 - [ ] Shortcode auf der Datenschutz-Page einfügen
 - [ ] Cookies > **Scann cookies**
 - [ ] Cookies **Save cookies**

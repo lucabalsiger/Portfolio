@@ -563,11 +563,6 @@ ul {
     [data-page="project"] .stats-applause.is-bumped {
         animation: none;
     }
-    .js [data-module]:not([data-module="overview-projects"]):not(.is-visible),
-    .js .teaser-project:not(.is-visible) {
-        opacity: 1;
-        transform: none;
-    }
     .filmstrip {
         scroll-behavior: auto;
     }
@@ -967,23 +962,25 @@ ul {
     }
 }
 
-/* Scroll reveal */
-.js [data-module]:not([data-module="overview-projects"]):not(.is-visible) {
-    opacity: 0;
-    transform: translateY(28px);
-}
-.js .teaser-project:not(.is-visible) {
-    opacity: 0;
-    transform: translateY(20px);
-}
-.js [data-module]:not([data-module="overview-projects"]) {
-    transition: opacity 0.6s ease, transform 0.6s ease;
-}
-.js .teaser-project {
-    transition: opacity 0.55s ease, transform 0.35s ease;
-}
-.js .teaser-project:nth-child(even):not(.is-visible) {
-    transition-delay: 0.12s;
+/* Scroll reveal: nur wenn Bewegung erlaubt ist, bei reduzierter Bewegung sind die Module sofort sichtbar */
+@media (prefers-reduced-motion: no-preference) {
+    .js [data-module]:not([data-module="overview-projects"]):not(.is-visible) {
+        opacity: 0;
+        transform: translateY(28px);
+    }
+    .js .teaser-project:not(.is-visible) {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    .js [data-module]:not([data-module="overview-projects"]) {
+        transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .js .teaser-project {
+        transition: opacity 0.55s ease, transform 0.35s ease;
+    }
+    .js .teaser-project:nth-child(even):not(.is-visible) {
+        transition-delay: 0.12s;
+    }
 }
 
 /* Project card hover lift */
