@@ -126,6 +126,128 @@ themeToggle?.addEventListener('click', () => {
     setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
 });
 
+// Aufrufe und Applaus auf der Projektseite: zählt über die REST-Endpunkte in backend/rest/
+const projectStats = document.querySelector('.project-stats');
+if (projectStats) {
+    const id = projectStats.dataset.projectId;
+    const readonly = projectStats.hasAttribute('data-readonly'); // angemeldet: nichts zählen
+    const viewsEl = projectStats.querySelector('.stats-views');
+    const applauseEl = projectStats.querySelector('.stats-applause');
+    const button = projectStats.querySelector('.applause-button');
+    const message = projectStats.querySelector('.stats-message');
+
+    // Projekte mit Applaus merkt sich der Browser dauerhaft, der Server sperrt nur einen Tag
+    function getApplauded() {
+        try {
+            return JSON.parse(localStorage.getItem('applauded')) || [];
+        } catch (e) {
+            return [];
+        }
+    }
+    function rememberApplause() {
+        try {
+            localStorage.setItem('applauded', JSON.stringify([...new Set([...getApplauded(), id])]));
+        } catch (e) {}
+    }
+
+    function showStats(data) {
+        viewsEl.textContent = data.views.toLocaleString(html.lang);
+        applauseEl.textContent = data.applause.toLocaleString(html.lang);
+    }
+    function markApplauded() {
+        button.disabled = true;
+        button.setAttribute('aria-pressed', 'true');
+        button.textContent = 'applaudiert';
+    }
+    async function send(url) {
+        const response = await fetch(url, { method: 'POST' });
+        if (!response.ok) throw new Error(response.status);
+        return response.json();
+    }
+
+    if (getApplauded().includes(id)) markApplauded();
+
+    // Aufruf zählen: still im Hintergrund, ohne Meldung bei einem Fehler
+    if (!readonly) {
+        send(projectStats.dataset.viewUrl).then(showStats).catch(() => {});
+    }
+
+    button.addEventListener('click', async () => {
+        if (readonly) {
+            message.textContent = 'du bist angemeldet, dein applaus wird nicht gezählt.';
+            return;
+        }
+        button.disabled = true;
+        button.setAttribute('aria-busy', 'true');
+        message.textContent = '';
+        try {
+            const data = await send(projectStats.dataset.applauseUrl);
+            showStats(data);
+            rememberApplause();
+            markApplauded();
+            message.textContent = data.counted ? 'danke für deinen applaus!' : 'du hast schon applaudiert.';
+            applauseEl.classList.add('is-bumped');
+            applauseEl.addEventListener('animationend', () => applauseEl.classList.remove('is-bumped'), { once: true });
+        } catch (e) {
+            button.disabled = false;
+            message.textContent = 'das hat nicht geklappt, bitte versuch es nochmals.';
+        } finally {
+            button.removeAttribute('aria-busy');
+        }
+    });
+}
+
+// Kontaktformular: sendet per fetch() an backend/rest/_contact.php und zeigt Fehler direkt beim Feld
+document.querySelectorAll('.contact-form').forEach(form => {
+    form.noValidate = true; // eigene Meldungen statt der Hinweisblasen des Browsers, geprüft wird auf dem Server
+    const button = form.querySelector('.form-submit');
+    const status = form.querySelector('.form-status');
+    const fallback = 'das hat nicht geklappt. bitte prüfe deine verbindung und versuch es nochmals.';
+
+    function setFieldError(name, text) {
+        const field = form.elements[name];
+        const error = form.querySelector(`[data-error-for="${name}"]`);
+        error.textContent = text;
+        if (text) {
+            field.setAttribute('aria-invalid', 'true');
+        } else {
+            field.removeAttribute('aria-invalid');
+        }
+    }
+    function showStatus(text, state) {
+        status.textContent = text;
+        status.dataset.state = state;
+    }
+
+    form.addEventListener('submit', async e => {
+        e.preventDefault();
+        ['name', 'email', 'message'].forEach(name => setFieldError(name, ''));
+        showStatus('wird gesendet …', 'loading');
+        button.disabled = true;
+        form.setAttribute('aria-busy', 'true');
+        try {
+            const response = await fetch(form.action, { method: 'POST', body: new FormData(form) });
+            let data = {};
+            try {
+                data = await response.json();
+            } catch (error) {}
+            if (response.ok) {
+                form.reset();
+                showStatus(data.message, 'success');
+            } else {
+                Object.entries(data.data?.fields || {}).forEach(([name, text]) => setFieldError(name, text));
+                showStatus(data.message || fallback, 'error');
+                form.querySelector('[aria-invalid="true"]')?.focus();
+            }
+        } catch (error) {
+            showStatus(fallback, 'error'); // keine Verbindung
+        } finally {
+            button.disabled = false;
+            form.removeAttribute('aria-busy');
+        }
+    });
+});
+
 // Custom cursor (desktop only)
 if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
     const cursor = document.createElement('div');
@@ -145,13 +267,9 @@ if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
         requestAnimationFrame(tick);
     })();
 
-    document.querySelectorAll('a, button').forEach(el => {
-        el.addEventListener('mouseenter', () => cursor.classList.add('cursor--hover'));
-        el.addEventListener('mouseleave', () => cursor.classList.remove('cursor--hover'));
-    });
-
-    document.querySelectorAll('.filmstrip-item').forEach(el => {
-        el.addEventListener('mouseenter', () => cursor.classList.add('cursor--zoom'));
-        el.addEventListener('mouseleave', () => cursor.classList.remove('cursor--zoom'));
+    // Event-Delegation: ein Listener am document, wirkt auch für Elemente, die später ins HTML kommen
+    document.addEventListener('pointerover', e => {
+        cursor.classList.toggle('cursor--hover', !!e.target.closest('a, button'));
+        cursor.classList.toggle('cursor--zoom', !!e.target.closest('.filmstrip-item'));
     });
 }

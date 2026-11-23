@@ -7,11 +7,13 @@ $subline = implode(' · ', array_filter([$project['year'], $project['subtitle']]
     <section class="project-hero">
         <h1 class="title"><?= esc_html($project['title']) ?></h1>
         <?php if ($project['image']): ?>
-            <img class="image" src="<?= esc_url($project['image']['src']) ?>" alt="<?= esc_attr($project['image']['alt']) ?>">
+            <?php /* gleicher view-transition-name wie die Kachel in teaser/project.php. srcset/sizes: Bild ist 10 von 12 Spalten breit, auf Mobile ganz. fetchpriority: wichtigstes Bild zuerst laden */ ?>
+            <img class="image" src="<?= esc_url($project['image']['src']) ?>"<?php if (!empty($project['image']['srcset'])): ?> srcset="<?= esc_attr($project['image']['srcset']) ?>" sizes="(max-width: 768px) 100vw, 84vw"<?php endif; ?> alt="<?= esc_attr($project['image']['alt']) ?>" fetchpriority="high" style="view-transition-name: project-<?= (int) get_the_ID() ?>">
         <?php endif; ?>
         <?php if ($subline): ?>
             <p class="lead"><?= esc_html($subline) ?></p>
         <?php endif; ?>
+        <?php get_template_part('frontend/views/partials/project-stats', null, ['id' => get_the_ID(), 'stats' => $project['stats']]); ?>
     </section>
 
     <?php if ($project['description'] || $project['gallery']): ?>

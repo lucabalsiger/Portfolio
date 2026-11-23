@@ -69,6 +69,11 @@
     from { opacity: 0; }
     to   { opacity: 1; }
 }
+/* Projektbild gleitet von der Kachel in den Hero und zurück (view-transition-name: project-{id}) */
+::view-transition-group(*) {
+    animation-duration: 450ms;
+    animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+}
 
 body {
     min-height: 100dvh;
@@ -311,6 +316,45 @@ ul {
     & .meta dt {
         color: var(--color-muted);
     }
+    /* Aufrufe und Applaus (partials/project-stats.php) */
+    & .project-stats .stats {
+        display: flex;
+        gap: 32px;
+    }
+    & .project-stats dd {
+        font: var(--font-h3);
+    }
+    & .applause-button {
+        justify-self: start;
+        font: var(--font-small);
+        color: var(--color-ink);
+        background: transparent;
+        border: 1px solid var(--color-ink);
+        border-radius: 100px;
+        padding: 6px 14px;
+        transition: background-color 0.18s, border-color 0.18s, color 0.18s;
+    }
+    & .applause-button:hover:not(:disabled) {
+        background-color: var(--color-ink);
+        color: var(--color-paper);
+    }
+    & .applause-button[aria-pressed="true"] {
+        background-color: var(--color-accent);
+        border-color: var(--color-accent);
+        color: var(--color-paper);
+    }
+    & .applause-button[aria-busy="true"] {
+        opacity: 0.6;
+    }
+    & .stats-message {
+        color: var(--color-muted);
+    }
+    & .stats-message:empty {
+        display: none;
+    }
+    & .stats-applause.is-bumped {
+        animation: applause-bump 0.45s ease;
+    }
     & .project-section {
         display: grid;
         grid-template-columns: repeat(12, 1fr);
@@ -503,6 +547,9 @@ ul {
 @keyframes cursor-blink {
     50% { opacity: 0; }
 }
+@keyframes applause-bump {
+    40% { transform: scale(1.35); color: var(--color-accent); }
+}
 @keyframes marquee {
     from { transform: translateX(0); }
     to   { transform: translateX(-100%); }
@@ -512,13 +559,20 @@ ul {
     [data-module="contact"] .email-badge .ring,
     [data-layout="header"] .dots span,
     [data-layout="header"] .brand::after,
-    [data-layout="footer"] .marquee span {
+    [data-layout="footer"] .marquee span,
+    [data-page="project"] .stats-applause.is-bumped {
         animation: none;
     }
     .js [data-module]:not([data-module="overview-projects"]):not(.is-visible),
     .js .teaser-project:not(.is-visible) {
         opacity: 1;
         transform: none;
+    }
+    .filmstrip {
+        scroll-behavior: auto;
+    }
+    @view-transition {
+        navigation: none;
     }
 }
 
@@ -687,6 +741,53 @@ ul {
     }
 }
 
+/* GitHub-Repos: zuletzt bearbeitete öffentliche Repos (modules/github_repos.php) */
+[data-module="github-repos"] {
+    & .title {
+        font: var(--font-h2);
+        margin-bottom: 48px;
+    }
+    & .repos {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 40px 24px;
+    }
+    & .repo {
+        display: grid;
+        align-content: start;
+        gap: 12px;
+        padding-top: 16px;
+        border-top: 1px solid var(--color-line);
+    }
+    & .repo-name {
+        font: var(--font-h3);
+        letter-spacing: -0.03em;
+        text-decoration: none;
+        overflow-wrap: anywhere;
+    }
+    & .repo-description {
+        max-width: var(--width-text);
+    }
+    & .repo-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px 12px;
+        font: var(--font-small);
+        color: var(--color-muted);
+    }
+    & .tag {
+        color: var(--color-paper);
+        background: var(--color-accent);
+        border-radius: 100px;
+        padding: 3px 10px;
+    }
+    & .profile-link {
+        margin-top: 40px;
+        font: var(--font-h3);
+    }
+}
+
 [data-module="contact"] {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
@@ -710,6 +811,77 @@ ul {
         margin-top: 24px;
         max-width: var(--width-text);
         font: var(--font-lead);
+    }
+    /* Kontaktformular (partials/contact-form.php) */
+    & .contact-form {
+        display: grid;
+        gap: 20px;
+        max-width: var(--width-text);
+        margin-top: 40px;
+    }
+    & .form-field {
+        display: grid;
+        gap: 6px;
+    }
+    & .form-field label {
+        font: var(--font-small);
+        color: var(--color-muted);
+    }
+    & .form-field input,
+    & .form-field textarea {
+        font: var(--font-body);
+        color: var(--color-ink);
+        background: transparent;
+        border: 0;
+        border-bottom: 1px solid var(--color-ink);
+        border-radius: 0;
+        padding: 8px 0;
+    }
+    & .form-field textarea {
+        min-height: 140px;
+        resize: vertical;
+    }
+    & .form-field [aria-invalid="true"] {
+        border-bottom-color: var(--color-accent);
+    }
+    & .field-error,
+    & .form-status[data-state="error"] {
+        color: var(--color-accent);
+    }
+    & .field-error,
+    & .form-privacy,
+    & .form-status {
+        font: var(--font-small);
+    }
+    & .form-privacy {
+        color: var(--color-muted);
+    }
+    & .field-error:empty,
+    & .form-status:empty {
+        display: none;
+    }
+    & .form-honeypot {
+        position: absolute;
+        left: -9999px;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+    }
+    & .form-submit {
+        justify-self: start;
+        font: var(--font-body);
+        color: var(--color-paper);
+        background: var(--color-ink);
+        border: 0;
+        border-radius: 100px;
+        padding: 10px 22px;
+        transition: background-color 0.18s;
+    }
+    & .form-submit:hover:not(:disabled) {
+        background: var(--color-accent);
+    }
+    & .form-submit:disabled {
+        opacity: 0.6;
     }
     & .email-badge {
         display: block;
@@ -889,7 +1061,8 @@ ul {
         border-left: 0;
         padding-left: 0;
     }
-    [data-module="overview-projects"] .projects {
+    [data-module="overview-projects"] .projects,
+    [data-module="github-repos"] .repos {
         grid-template-columns: 1fr;
     }
     [data-layout="header"] {

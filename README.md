@@ -64,13 +64,17 @@ Alle Dateien für Funktionalität und CMS-Konfiguration. Hier wird gearbeitet, w
 
 | Ordner | Was drin ist |
 |---|---|
+| `admin/` | Eigene Ansichten im Backend: Statistik mit Spalten in der Projektliste, Dashboard-Widget und Zurücksetzen (`_stats.php`), Seite «Nachrichten» aus dem Kontaktformular (`_messages.php`) |
 | `carbonfields/` | CMS-Felder für Seiten, Projekte und globale Einstellungen (Carbon Fields) |
 | `cpt/` | Custom Post Type «Projekte» |
+| `db/` | Eigene Datenbank-Tabellen `portfolio_stats` (Aufrufe und Applaus pro Projekt) und `portfolio_messages` (Nachrichten aus dem Kontaktformular), legen sich selbst an |
 | `enqueue/` | Einbinden von `main.css` und `main.js` über WordPress, mit Cache-Busting |
 | `getter/` | Funktionen, die Daten aus der Datenbank holen und für Templates aufbereiten |
 | `helpers/` | Allgemeine Hilfsfunktionen, die überall genutzt werden können |
 | `init/` | WordPress-Basis-Setup: Bildgrössen, Seitentitel, Bereinigung, SVG-Upload (nur Admins) |
 | `nav/` | Navigationsmenüs registrieren |
+| `seo/` | Angaben für Suchmaschinen und Social Media im `<head>`: Beschreibung, Open Graph, Canonical, strukturierte Daten (JSON-LD), noindex für 404 |
+| `rest/` | Eigene REST-Endpunkte unter `/wp-json/portfolio/v1/`: Aufrufe und Applaus zählen (`_stats.php`), Kontaktformular mit Spam-Schutz und Mailversand (`_contact.php`) |
 | `tax/` | Taxonomie «Projektkategorien» |
 
 ### 🏠 Ordner `frontend`
@@ -133,7 +137,12 @@ Einfache Bildergalerie.
 Grosse, auffällige Textzeile für kurze Aussagen.
 
 ### Kontakt (`contact`)
-Kontaktbereich mit Titel, Text, optionalem Bild und E-Mail-Signet.
+Kontaktbereich mit Titel, Text, optionalem Bild und E-Mail-Signet. Mit der Checkbox «Kontaktformular anzeigen» erscheint zusätzlich ein Formular (siehe «Kontaktformular» unter Entwicklungshinweise).
+
+### GitHub-Repos (`github_repos`)
+Zeigt die zuletzt bearbeiteten öffentlichen Repos des GitHub-Kontos, das unter **Globales** eingetragen ist (3, 6 oder 9 Stück), mit Beschreibung, Sprache, Sternen und Datum der letzten Änderung. Forks und archivierte Repos werden weggelassen.
+
+Die Daten kommen über die GitHub-API (`backend/getter/_github.php`). Der Abruf läuft in PHP auf dem Server mit `wp_remote_get()`, nicht im Browser, so schicken Besucher:innen keine Daten an GitHub. Das Ergebnis wird 6 Stunden als Transient zwischengespeichert. Ist GitHub nicht erreichbar, bleibt der letzte erfolgreiche Stand sichtbar. Gibt es keinen, wird das Modul ausgeblendet, ohne Fehler auf der Seite.
 
 ### Rechtstext (`legal_text`)
 Für Impressum und Datenschutzerklärung.
@@ -149,6 +158,9 @@ Im Backend unter dem Menüpunkt **Globales** (Carbon Fields):
 | Logo / Wortmarke | Optional. Ohne Logo wird der Seitenname als Text angezeigt |
 | E-Mail-Adresse | Für das Kontaktmodul |
 | Footer-Text | z. B. «Luca Balsiger / 2026» |
+| GitHub-Benutzername | Für das Modul «GitHub-Repos», z. B. «lucabalsiger» |
+| Standard-Beschreibung | Beschreibung für Suchmaschinen und beim Teilen von Links, für die Startseite und alle Seiten ohne eigenen Text (höchstens 160 Zeichen) |
+| Vorschaubild | Bild beim Teilen eines Links, wenn die Seite kein eigenes hat (ideal 1200 × 630 px, kein SVG) |
 | Socials | Mehrere Einträge mit Titel, Link und optionalem Icon |
 
 ---
@@ -184,7 +196,20 @@ Alle Schriften sind lokal eingebunden (`frontend/assets/fonts/`, `@font-face` in
 Über den runden Button im Header umschaltbar. Gewählter Modus wird im `localStorage` gespeichert, Systemeinstellung (`prefers-color-scheme`) wird als Standard übernommen. Ein kleines Inline-Script direkt nach `<meta charset>` in `header.php` setzt `data-theme` auf `<html>`, bevor die Seite gezeichnet wird. So blitzt beim Laden nicht kurz der helle Modus auf. `main.js` kümmert sich nur noch um das Umschalten und setzt am Button `aria-pressed` (`true` im Dark Mode).
 
 ### Reduzierte Bewegung
-Bei `prefers-reduced-motion: reduce` stoppt das CSS die Dauer-Animationen und das Scroll Reveal. In `main.js` werden zusätzlich der Text-Scramble auf dem Markennamen und die magnetischen Navigationslinks nicht ausgeführt.
+Bei `prefers-reduced-motion: reduce` stoppt das CSS die Dauer-Animationen, das Scroll Reveal und die Seitenübergänge. In `main.js` werden zusätzlich der Text-Scramble auf dem Markennamen und die magnetischen Navigationslinks nicht ausgeführt. Die Projektgalerie (`lightbox-gallery.php`) wechselt die Bilder dann nicht automatisch und springt beim Blättern direkt zum nächsten Bild, statt weich zu scrollen.
+
+### Suchmaschinen und Social Media (SEO und GEO)
+`backend/seo/index.php` schreibt pro Seite passende Angaben in den `<head>`. Alles kommt aus Inhalten, die ohnehin gepflegt werden, es braucht kein SEO-Plugin.
+
+- **Beschreibung** (`<meta name="description">`): bei Projekten der Beschrieb, sonst der Untertitel. Bei Seiten der erste Text aus den Modulen. Auf der Startseite und als Fallback die Standard-Beschreibung aus «Globales». Gekürzt auf 155 Zeichen an einer Wortgrenze (`shorten_text()` in `backend/helpers/`).
+- **Open Graph und Twitter Card:** Titel, Beschreibung, URL und Bild für die Vorschau beim Teilen auf WhatsApp, LinkedIn & Co. Als Bild dient das Herobild des Projekts oder das erste Bild aus den Modulen, sonst das Vorschaubild aus «Globales». SVG-Dateien werden übersprungen, weil diese Dienste sie nicht anzeigen.
+- **Strukturierte Daten** (JSON-LD nach schema.org): eine `Person` mit den Socials als `sameAs` auf jeder Seite, dazu `WebSite` auf der Startseite und `CreativeWork` pro Projekt (Titel, Beschreibung, Bild, Jahr, Kategorien). Damit verstehen Suchmaschinen und KI-Suchsysteme (GEO), wer hinter der Seite steht und welche Projekte dazugehören.
+- **Canonical:** setzt WordPress bei Seiten und Projekten selbst, das Theme ergänzt ihn für die Startseite.
+- **404-Seite:** erhält `noindex`, damit «Seite nicht gefunden» nicht in Suchresultaten auftaucht.
+- **SEO-Plugin:** Ist Yoast, Rank Math, All in One SEO oder SEOPress aktiv, gibt das Theme nichts davon aus, damit nichts doppelt im `<head>` steht.
+
+### Seitenübergänge (View Transitions)
+Beim Wechsel zwischen zwei Seiten blendet der Inhalt weich über (`@view-transition { navigation: auto; }` in `main.css`), ganz ohne JavaScript. Zusätzlich gleitet beim Klick auf eine Projektkachel das Bild aus der Kachel in den Hero der Projektseite und beim Zurückgehen wieder zurück. Dafür tragen die Kachel (`.image-wrap` in `teaser/project.php`) und das Herobild (`pages/project.php`) denselben `view-transition-name: project-{id}`. Der Name sitzt am Wrapper und nicht am Bild, weil der Wrapper das Bild in die Blob-Form schneidet. Browser ohne Unterstützung wechseln die Seite ganz normal. Bei reduzierter Bewegung sind die Übergänge ausgeschaltet.
 
 ### SVG-Grain-Effekt
 Der Grain-Effekt auf Intro-Zeilen wird via SVG-Filter (`feTurbulence`) erzeugt. Der Filter ist als unsichtbares `<svg>` im HTML eingebettet. Der Hover-Übergang läuft über ein `::after`-Pseudo-Element statt am Text selbst, weil `filter: url()` in CSS nicht animierbar ist.
@@ -198,8 +223,29 @@ Module erscheinen beim Scrollen animiert (fade + translateY). Nur aktiv wenn Jav
 ### Benutzerdefinierter Cursor
 Auf Desktop-Geräten mit Maus: roter Punkt mit leichtem Lag. Wächst über Links und Buttons.
 
+### Aufrufe und Applaus
+Auf jeder Projektseite stehen neben der Unterzeile die Zahl der Aufrufe und des Applauses sowie ein Button «applaus geben» (`frontend/views/partials/project-stats.php`). Die Daten liegen in der eigenen Tabelle `portfolio_stats` (`backend/db/`). `main.js` zählt beim Öffnen der Seite einen Aufruf und beim Klick auf den Button einen Applaus über die REST-Endpunkte in `backend/rest/`.
+
+- **Einmal pro Person:** Der Server sperrt pro Person und Projekt einen Aufruf für 30 Minuten und einen Applaus für einen Tag. Dafür speichert er die IP-Adresse nur gehasht als Transient. Dauerhaft merkt sich der Browser im `localStorage`, bei welchen Projekten schon applaudiert wurde.
+- **Rückmeldung:** Während der Anfrage ist der Button deaktiviert. Danach zählt die Zahl sichtbar hoch und eine Meldung erscheint (`aria-live`). Schlägt die Anfrage fehl, wird der Button wieder aktiv und eine Fehlermeldung erklärt, dass man es nochmals versuchen kann.
+- **Angemeldete Benutzer:innen** werden nicht gezählt, damit eigene Tests die Zahlen nicht verfälschen. Zum Testen ein privates Fenster verwenden.
+- **Im Backend** zeigt die Liste «Alle Projekte» zwei sortierbare Spalten «Aufrufe» und «Applaus». Auf dem Dashboard fasst ein Widget die Top 5 und die Summen zusammen. Admins können dort die Statistik zurücksetzen, zum Beispiel vor dem Go-Live (`backend/admin/`).
+
+### Kontaktformular
+Das Formular im Kontaktmodul (`frontend/views/partials/contact-form.php`) schickt Name, E-Mail und Nachricht per `fetch()` an den Endpunkt `/wp-json/portfolio/v1/contact` (`backend/rest/_contact.php`). Dieser prüft die Felder, speichert die Nachricht in der Tabelle `portfolio_messages` und leitet sie per `wp_mail()` an die E-Mail-Adresse aus «Globales» weiter. Antworten lassen sich direkt beantworten, weil die Absenderadresse als Reply-To gesetzt ist.
+
+- **Rückmeldung:** Fehler erscheinen direkt beim Feld (`aria-invalid`, `aria-describedby`), der Fokus springt ins erste fehlerhafte Feld. Während des Sendens ist der Button deaktiviert, danach meldet ein Statustext (`role="status"`) Erfolg oder Fehler.
+- **Spam-Schutz ohne Captcha und ohne Dienste von Dritten:** ein unsichtbares Honeypot-Feld, ein mit `wp_hash()` signierter Zeitstempel (wer schneller als in 3 Sekunden absendet, ist ein Bot) und höchstens 3 Nachrichten pro Person und Stunde. Bots erhalten trotzdem eine Erfolgsmeldung, damit sie nicht merken, was sie verraten hat.
+- **Ohne JavaScript** sendet der Browser das Formular normal ab, die Nachricht kommt an, die Antwort erscheint dann aber als JSON.
+- **Im Backend** listet der Menüpunkt **Nachrichten** alle gespeicherten Nachrichten, die neuste zuerst, 20 pro Seite. Pro Nachricht gibt es einen Link «Antworten» (öffnet das Mailprogramm) und «Löschen». Die Seite ist nur für Admins sichtbar, weil die Nachrichten Personendaten enthalten. Nachrichten bleiben gespeichert, bis sie gelöscht werden.
+
 ### Bilder
 `get_media_by_id()` liefert neben `src` und `alt` auch `width` und `height`. Teaser und Galerie geben diese Attribute aus, damit der Browser den Platz reserviert und das Layout beim Laden nicht springt.
+
+Grosse Bilder erhalten zusätzlich `srcset` und `sizes`, damit kleine Bildschirme kleinere Dateien laden: das Herobild der Projektseite (`get_media_by_id()` liefert `srcset`) und der Filmstreifen der Projektgalerie (`get_project_gallery()`). Der Filmstreifen zeigt höchstens die Grösse `l` (1800 px), das Original lädt erst die Lightbox beim Öffnen (`data-full`). Das Herobild hat `fetchpriority="high"`, weil es das grösste Element beim Laden ist (LCP).
+
+### Überschriften
+Jede Seite hat genau eine `h1` und überspringt keine Ebene. `render_modules()` gibt jedem Modul `heading` mit: `h1` für das erste Modul der Seite, sonst `h2`. Die Kacheltitel der Projektübersicht liegen eine Ebene darunter, ohne Modultitel direkt auf `h2`. Das Aussehen hängt nur an der Klasse `.title`, nicht an der Ebene.
 
 ### Responsives Layout
 - Desktop: 12-Spalten-Grid
@@ -212,6 +258,28 @@ Auf Desktop-Geräten mit Maus: roter Punkt mit leichtem Lag. Wächst über Links
 - **Externe Links:** öffnen in einem neuen Tab mit `rel="noopener noreferrer"` (Hilfsfunktion `external_link_attrs()`).
 - **SVG-Upload:** nur für Benutzer:innen mit dem Recht `manage_options` (Administrator:innen), weil SVG-Dateien JavaScript enthalten können. Empfohlen ist zusätzlich das Plugin «Safe SVG», das SVG-Dateien beim Upload bereinigt.
 - **Backend:** Theme-Editor, Website-Editor und Schriftbibliothek sind aus dem Menü entfernt und auch über die direkte URL gesperrt.
+- **Datenbank:** Alle eigenen Abfragen laufen über `$wpdb->prepare()`. Spaltennamen kommen nur aus festen Listen, nie aus einer Anfrage.
+- **REST-Endpunkte:** Sperren gegen Mehrfachzählung und ein Limit für das Kontaktformular. IP-Adressen werden dafür nur gehasht (`wp_hash()`) und befristet als Transient gespeichert.
+- **Kontaktformular:** Honeypot, signierter Zeitstempel, Prüfung aller Felder auf dem Server, `Reply-To` nur mit geprüfter Adresse (Schutz vor Header-Injection).
+- **Aktionen im Backend** (Statistik zurücksetzen, Nachricht löschen): nur für Admins und nur mit gültigem Nonce.
+
+### Prüfung
+Stand 23.11.2026, lokal mit Local (HTTP, ohne Cache).
+
+**HTML (W3C Nu Validator):** keine Fehler auf Startseite, Projektseite, Über mich, Kontakt, Projekte und 404. Einzige Meldung ist `view-transition-name` «doesn't exist»: ein Fehlalarm, weil die CSS-Prüfung des Validators die Eigenschaft aus CSS View Transitions Level 1 noch nicht kennt.
+
+**PHP:** `php -l` ohne Fehler für alle PHP-Dateien des Themes.
+
+**Lighthouse 12.6:**
+
+| Seite | Performance | Barrierefreiheit | Best Practices | SEO |
+|---|---|---|---|---|
+| Startseite (Mobile) | 100 | 100 | 79 | 100 |
+| Projekt ileve district (Mobile) | 99 | 100 | 79 | 100 |
+| Projekt isolove (Mobile) | 99 | 100 | 79 | 100 |
+| Projekt isolove (Desktop) | 100 | 100 | 79 | 100 |
+
+Best Practices liegt lokal bei 79, weil Local ohne HTTPS läuft. Auf dem Server mit SSL-Zertifikat fällt dieser Abzug weg. <!-- ANPASSEN: nach dem Go-Live mit der Live-URL nochmals messen und die Tabelle aktualisieren. -->
 
 ---
 

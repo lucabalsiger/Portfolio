@@ -28,6 +28,8 @@ function get_media_by_id(int|string $id, string $size = 'm'): false|array
         // -> Breite und Höhe, damit der Browser den Platz reserviert und das Layout nicht springt (bei SVG oft 0)
         $data['width'] = (int) $image[1];
         $data['height'] = (int) $image[2];
+        // -> alle vorhandenen Grössen bis $size, damit kleine Bildschirme kleinere Dateien laden (leer, wenn es nur eine gibt)
+        $data['srcset'] = wp_get_attachment_image_srcset($id, $size) ?: '';
         $data['type'] = 'image';
     } else {
         $data['src'] = wp_get_attachment_url($id);
@@ -64,6 +66,18 @@ function the_rich_text(?string $text): void
         return;
     }
     echo wp_kses_post(wpautop($text));
+}
+
+// -> Text auf eine Länge kürzen, an einer Wortgrenze, mit «…» am Ende (z. B. für Meta-Beschreibungen)
+function shorten_text(string $text, int $max = 155): string
+{
+    $text = trim(preg_replace('/\s+/u', ' ', $text));
+    if (mb_strlen($text) <= $max) {
+        return $text;
+    }
+    $cut = mb_substr($text, 0, $max - 1);
+    $space = mb_strrpos($cut, ' ');
+    return rtrim($space ? mb_substr($cut, 0, $space) : $cut, ' ,.;:–-') . '…';
 }
 
 // -> Attribute für externe Links: neuer Tab ohne Zugriff auf das Ursprungsfenster

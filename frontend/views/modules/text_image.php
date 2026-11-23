@@ -5,7 +5,7 @@ $data = $args['data'];
 <section data-module="text-image" data-image-position="<?= esc_attr($data['image_position']) ?>">
     <div class="content">
         <?php if ($data['title']): ?>
-            <h2 class="title"><?= esc_html($data['title']) ?></h2>
+            <<?= $data['heading'] ?> class="title"><?= esc_html($data['title']) ?></<?= $data['heading'] ?>>
         <?php endif; ?>
         <div class="text"><?php the_rich_text($data['text']); ?></div>
     </div>

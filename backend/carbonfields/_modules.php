@@ -122,6 +122,16 @@ Container::make('post_meta', 'Module')
                 Field::make('text', 'title', 'Titel')->set_help_text('z. B. «thank you.»'),
                 Field::make('textarea', 'text', 'Text')->set_rows(3),
                 Field::make('image', 'image', 'Bild'),
+                Field::make('checkbox', 'show_form', 'Kontaktformular anzeigen')
+                    ->set_help_text('Nachrichten werden im Backend gespeichert und an die E-Mail-Adresse aus «Globales» geschickt. Der Hinweis im Formular verlinkt die Datenschutzerklärung aus Einstellungen > Datenschutz.'),
+            ])
+            // -> github_repos
+            ->add_fields('github_repos', 'GitHub-Repos', [
+                Field::make('text', 'title', 'Titel')->set_help_text('z. B. «code»'),
+                Field::make('select', 'count', 'Anzahl Repos')
+                    ->set_options(['3' => '3', '6' => '6', '9' => '9'])
+                    ->set_default_value('6')
+                    ->set_help_text('Zeigt die zuletzt bearbeiteten öffentlichen Repos des GitHub-Kontos aus «Globales». Ohne Benutzername oder wenn GitHub nicht erreichbar ist, wird das Modul ausgeblendet.'),
             ])
             // -> legal_text
             ->add_fields('legal_text', 'Rechtstext', [
@@ -138,7 +148,9 @@ function render_modules (): void {
     if (empty($modules)) {
         return;
     }
-    foreach ($modules as $module) {
+    foreach (array_values($modules) as $index => $module) {
+        // -> Titel des ersten Moduls wird zur h1, sonst h2: so hat jede Seite eine h1 und keine Ebene wird übersprungen
+        $module['heading'] = $index === 0 ? 'h1' : 'h2';
         // -> Modifiziere die Daten des Moduls, falls nötig, basierend auf dem Modultyp
         switch ($module['_type']) {
             case 'hero_front':
@@ -159,6 +171,17 @@ function render_modules (): void {
                 $module['image'] = $module['image'] ? get_media_by_id($module['image'], 'm') : false;
                 $module['email'] = get_globals_email();
                 $module['socials'] = get_globals_socials();
+                // -> Formulardaten nur, wenn das Formular eingeschaltet ist (Endpunkt: backend/rest/_contact.php)
+                $module['form'] = !empty($module['show_form']) ? [
+                    'action' => rest_url('portfolio/v1/contact'),
+                    'token' => get_contact_form_token(),
+                    'privacy_url' => get_privacy_policy_url(),
+                ] : false;
+                break;
+            case 'github_repos':
+                $username = get_globals_github_username();
+                $module['repos'] = get_github_repos($username, (int) ($module['count'] ?: 6));
+                $module['profile_url'] = $username ? 'https://github.com/' . $username : false;
                 break;
         }
         // -> Laden des Templates basierend auf dem Modultyp und weitergeben der Daten

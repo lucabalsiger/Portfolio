@@ -10,7 +10,8 @@ $single = $count === 1;
     <div class="filmstrip">
         <?php foreach ($images as $i => $image): ?>
             <div class="filmstrip-item">
-                <img src="<?= esc_url($image['full']) ?>" alt="<?= esc_attr($image['alt']) ?>" loading="<?= $i === 0 ? 'eager' : 'lazy' ?>">
+                <?php /* Filmstreifen: verkleinerte Version per srcset (Kachel ist 68 % breit, auf Mobile fast ganz), Original erst in der Lightbox (data-full) */ ?>
+                <img src="<?= esc_url($image['thumb']) ?>"<?php if ($image['srcset']): ?> srcset="<?= esc_attr($image['srcset']) ?>" sizes="(max-width: 768px) 90vw, 68vw"<?php endif; ?> width="<?= esc_attr($image['width']) ?>" height="<?= esc_attr($image['height']) ?>" data-full="<?= esc_url($image['full']) ?>" alt="<?= esc_attr($image['alt']) ?>" loading="lazy">
             </div>
         <?php endforeach; ?>
     </div>
@@ -25,7 +26,8 @@ $single = $count === 1;
     <dialog class="filmstrip-lightbox" aria-label="Bildansicht"<?= $single ? ' data-single' : '' ?>>
         <button class="filmstrip-lightbox-close" type="button" aria-label="Schliessen">&times;</button>
         <button class="filmstrip-lightbox-prev" type="button" aria-label="Vorheriges">&lsaquo;</button>
-        <img class="filmstrip-lightbox-image" src="" alt="">
+        <?php /* Startwert: erstes Bild (src darf nicht leer sein). lazy: lädt erst, wenn die Lightbox offen ist. Das Script tauscht es beim Öffnen aus */ ?>
+        <img class="filmstrip-lightbox-image" src="<?= esc_url($images[0]['full']) ?>" alt="<?= esc_attr($images[0]['alt']) ?>" loading="lazy">
         <button class="filmstrip-lightbox-next" type="button" aria-label="Nächstes">&rsaquo;</button>
     </dialog>
 </div>
@@ -43,19 +45,21 @@ $single = $count === 1;
     let startedAt = null;
     let remaining = INTERVAL;
     let isHovered = false;
+    // Reduzierte Bewegung: kein Autoplay, Bilder springen statt weich zu scrollen
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     function goTo(index) {
         current = (index + items.length) % items.length;
         const item = items[current];
         strip.scrollTo({
             left: item.offsetLeft - (strip.clientWidth - item.offsetWidth) / 2,
-            behavior: 'smooth'
+            behavior: reduceMotion ? 'auto' : 'smooth'
         });
         if (counter) counter.textContent = current + 1;
     }
 
     function startAutoplay() {
-        if (isHovered) return;
+        if (isHovered || reduceMotion) return;
         clearTimeout(timer);
         startedAt = Date.now();
         timer = setTimeout(function tick() {
@@ -109,7 +113,7 @@ $single = $count === 1;
         function lbShow(index) {
             lbCurrent = (index + items.length) % items.length;
             const img = items[lbCurrent].querySelector('img');
-            lbImage.src = img.src;
+            lbImage.src = img.dataset.full || img.currentSrc || img.src;
             lbImage.alt = img.alt;
         }
 

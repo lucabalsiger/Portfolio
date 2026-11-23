@@ -1,5 +1,5 @@
 <?php
-// Kontaktmodul: Titel, Text, optionales Bild, klickbares E-Mail-Signet.
+// Kontaktmodul: Titel, Text, optionales Bild, optionales Kontaktformular, klickbares E-Mail-Signet.
 // E-Mail wird via antispambot() verschleiert, damit Crawler sie nicht abgreifen.
 $data = $args['data'];
 ?>
@@ -9,10 +9,13 @@ $data = $args['data'];
     <?php endif; ?>
     <div class="content">
         <?php if ($data['title']): ?>
-            <h2 class="title"><?= esc_html($data['title']) ?></h2>
+            <<?= $data['heading'] ?> class="title"><?= esc_html($data['title']) ?></<?= $data['heading'] ?>>
         <?php endif; ?>
         <?php if ($data['text']): ?>
             <p class="text"><?= esc_html($data['text']) ?></p>
+        <?php endif; ?>
+        <?php if ($data['form']): ?>
+            <?php get_template_part('frontend/views/partials/contact-form', null, ['form' => $data['form']]); ?>
         <?php endif; ?>
         <?php if ($data['email']):
             $email_path_id = 'email-path-' . wp_unique_id();
