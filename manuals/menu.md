@@ -24,6 +24,19 @@ In dieser Anleitung wird beispielhaft ein Menu mit folgenden Angaben hinzugefüg
    ```php
    $menu_items = get_menu_by_slug('main');
    ```
+4. Die Einträge in einer Schleife ausgeben, mit Escaping und dem Hilfsattribut für externe Links:
+   ```php
+   <?php if ($menu_items): ?>
+       <nav class="nav" aria-label="Hauptnavigation">
+           <ul>
+               <?php foreach ($menu_items as $item): ?>
+                   <li><a href="<?= esc_url($item['url']) ?>"<?= external_link_attrs($item['url']) ?>><?= esc_html($item['title']) ?></a></li>
+               <?php endforeach; ?>
+           </ul>
+       </nav>
+   <?php endif; ?>
+   ```
+   `external_link_attrs()` öffnet Links auf fremde Domains in einem neuen Tab mit `rel="noopener noreferrer"`. Das `aria-label` hilft Screenreadern, mehrere Navigationen zu unterscheiden. Ein vollständiges Beispiel steht in [frontend/views/layout/header.php](/frontend/views/layout/header.php).
 
 ## ✨ Umsetzung mit KI
 Schicke der KI diese Anleitung und gebe ihr folgende Angaben mit: 

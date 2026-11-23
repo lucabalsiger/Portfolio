@@ -325,6 +325,8 @@ Für häufige Erweiterungen gibt es Schritt-für-Schritt-Anleitungen im Ordner `
 | Neue Taxonomie | [`manuals/taxonomy.md`](manuals/taxonomy.md) |
 | Menüs registrieren und ausgeben | [`manuals/menu.md`](manuals/menu.md) |
 | Globale Felder ergänzen | [`manuals/globals.md`](manuals/globals.md) |
+| Kontaktformular und Mailversand einrichten | [`manuals/mail.md`](manuals/mail.md) |
+| Fertige Seite zu Infomaniak umziehen | [`manuals/installation.md`](manuals/installation.md#-fertige-seite-von-local-zu-infomaniak-umziehen) |
 | Webseite veröffentlichen | [`manuals/go-live-checkliste.md`](manuals/go-live-checkliste.md) |
 
 **Farben, Abstände und Schriften zentral anpassen:** Alle Grundwerte stehen als CSS-Variablen im `:root`-Block am Anfang von `frontend/styles/main.css`.

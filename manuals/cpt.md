@@ -25,7 +25,7 @@ Diese müssen, wenn nach dieser Anleitung gearbeitet wird, jeweils entsprechend 
        'labels' => [
            'name' => 'Vorlagen',
            'singular_name' => 'Vorlage',
-           'menu_name' => 'Projekte',
+           'menu_name' => 'Vorlagen',
            'name_admin_bar' => 'Vorlage',
            'all_items' => 'Alle Vorlagen',
            'add_new_item' => 'Neue Vorlage hinzufügen',
@@ -91,29 +91,36 @@ Diese müssen, wenn nach dieser Anleitung gearbeitet wird, jeweils entsprechend 
    Die verschiedenen Feldtypen, die benutzt werden können, sind in der [Dokumentation](https://docs.carbonfields.net/) zu finden.
 10. Um zu testen, ob das funktioniert, kannst du im Backend einen Eintrag deines CPT erstellen und schauen, ob die Inhaltsfelder-Konfiguration so aussieht, wie du dir das vorstellst.
 11. Wenn alles konfiguriert ist, erstellst du dir mindestens einen Eintrag deines CPT im Backend. Den brauchst du nachher zum Testen.
-12. Nun brauchen wir ein View-Template, um unseren Custom Post Type im Frontend anzuzeigen. Dazu erstellst du zuerst eine neue Datei im Ordner [frontend/views/pages](/frontend/views/pages) und benennst sie _preset.php (nach deinem CPT). Füge dort zum Testen einfach mal Folgendes ein:
+12. Nun brauchen wir ein View-Template, um unseren Custom Post Type im Frontend anzuzeigen. Dazu erstellst du zuerst eine neue Datei im Ordner [frontend/views/pages](/frontend/views/pages) und benennst sie `preset.php` (nach deinem CPT, ohne Unterstrich). Füge dort zum Testen einfach mal Folgendes ein:
    ```html
-   <mark>Hier kommt der Inhalt vom Post Type Vorlage</mark>
+   <div data-page="preset">
+       <mark>Hier kommt der Inhalt vom Post Type Vorlage</mark>
+   </div>
    ```
-13. Jetzt brauchst du noch eine Wordpress-Template-Datei, diese erstellst du auf der äussersten Ebene deines Codes und nennst sie `single-preset.php` (nach deinem CPT benannt). Füge dort dann diese Vorlage ein: 
-   ```html
-   <?php get_header() ?>
+   Die View verwendet ein `<div data-page="…">` und **kein** `<main>`, weil das `<main>` schon im Template aus Schritt 13 steht. Zwei verschachtelte `<main>` wären ungültiges HTML.
+13. Jetzt brauchst du noch eine Wordpress-Template-Datei, diese erstellst du auf der äussersten Ebene deines Codes und nennst sie `single-preset.php` (nach deinem CPT benannt). Füge dort dann diese Vorlage ein, sie hat den gleichen Aufbau wie `single-project.php`:
+   ```php
+   <?php
+   // Template für Detailseiten des Custom Post Type «preset».
+   get_header() ?>
    <?php get_template_part('frontend/views/layout/header') ?>
-   <?php get_template_part('frontend/views/pages/preset') ?>
+   <main><?php get_template_part('frontend/views/pages/preset') ?></main>
    <?php get_template_part('frontend/views/layout/footer') ?>
    <?php get_footer() ?>
-   
    ```
-   Ändere diese Vorlage so ab, dass in der mittleren Zeile dein vorher erstelltes Template geladen wird.
+   Ändere diese Vorlage so ab, dass im `<main>` dein vorher erstelltes Template geladen wird.
 14. Gehe dann ins Wordpress-Backend zu `Einstellungen/Permalinks` und speichere einmal, ohne etwas zu verändern. Das ist notwendig, damit Wordpress dein neu erstelltes Template korrekt erkennt.
 15. Nun kannst du im Backend zu deinem CPT gehen und auf Anzeigen klicken. Du solltest dann eine Seite mit Header & Foooter und dem `mark`-Tag den du eingefügt hast sehen.
 16. Was jetzt noch fehlt, ist, dass die Inhalte, die wir im Backend bei unserem CPT angelegt haben, im Frontend angezeigt werden. Dazu erstellen wir uns wieder einen Getter im Ordner [backend/getter](/backend/getter) und nennen ihn `_preset.php` (nach dem CPT).
 17. Füge in diese Datei nun diese Vorlage ein:
    ```php
-   function get_preset_by_id (int $id): array {
+   <?php
+
+   // -> Alle Daten für die Detailseite einer Vorlage
+   function get_preset_by_id(int $id): array {
        return [
            'title' => get_the_title($id),
-           'description' => carbon_get_post_meta($id, 'description');
+           'description' => carbon_get_post_meta($id, 'description'),
        ];
    }
    ```
@@ -127,7 +134,13 @@ Diese müssen, wenn nach dieser Anleitung gearbeitet wird, jeweils entsprechend 
    <?php
    $preset = get_preset_by_id(get_the_ID());
    ?>
+   <div data-page="preset">
+       <h1 class="title"><?= esc_html($preset['title']) ?></h1>
+       <p><?= esc_html($preset['description']) ?></p>
+   </div>
    ```
+   Gib Inhalte aus dem Backend immer **escaped** aus: `esc_html()` für Text, `esc_url()` für Links und Bilder, `esc_attr()` für Attribute, `the_rich_text()` für Rich-Text-Felder. So kann über das Backend kein schädlicher Code auf die Seite gelangen.
+20. Soll der CPT keine eigenen Detailseiten haben, zum Beispiel weil seine Einträge nur in einem Modul erscheinen, setze in der Konfiguration `'publicly_queryable' => false` und `'rewrite' => false`. Dann erzeugt WordPress keine URLs, die ins Leere führen.
 
 ## ✨ Umsetzung mit KI
 Schicke der KI diese Anleitung und gebe ihr folgende Angaben mit:

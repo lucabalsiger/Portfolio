@@ -15,7 +15,7 @@ In dieser Anleitung wird beispielhaft eine Taxonomie mit folgenden Angaben hinzu
 **Wichtig**: Bevor du eine Taxonomie erstellst, solltest du den CPT, dem du die Taxonomie zuweisen möchtest, schon erstellt haben.
 
 1. Als Erstes muss im Ordner [backend/tax] eine neue Datei für die Konfiguration der Taxonomie erstellt werden, die `_person_department.php` heisst (abgeleitet aus dem Slug deiner Taxonomie).
-2. Füge in diese Datei diese Vorlage einer CPT-Konfiguration ein:
+2. Füge in diese Datei diese Vorlage einer Taxonomie-Konfiguration ein:
    ```php
    <?php
    register_taxonomy(
@@ -44,8 +44,10 @@ In dieser Anleitung wird beispielhaft eine Taxonomie mit folgenden Angaben hinzu
    );
    
    ```
-   Passe die Werte in `labels`, `label` und unter `rewrite>slug` auf deine Taxonomie an. 
-3. Wechsle in die Datei [backend/tax/index.php](/backend/cpt/index.php) und lade dort die Datei, in der du deine Taxonomie registriert hast.
+   Passe die Werte in `labels`, `label` und unter `rewrite>slug` auf deine Taxonomie an.
+
+   **Ohne Archivseiten:** Braucht die Taxonomie keine eigenen Seiten (etwa `/abteilung/marketing/`), weil sie nur als Tag angezeigt wird, ersetze die letzte Zeile durch `'publicly_queryable' => false,` und `'rewrite' => false,`. Nur `rewrite` wegzulassen reicht nicht, denn dann gilt der Standard `true` und WordPress erzeugt trotzdem URLs, die auf einer leeren Seite landen. So ist es bei den Projektkategorien in diesem Theme gelöst ([backend/tax/_project_category.php](/backend/tax/_project_category.php)).
+3. Wechsle in die Datei [backend/tax/index.php](/backend/tax/index.php) und lade dort die Datei, in der du deine Taxonomie registriert hast.
    ```php
    require_once __DIR__ . '/_person_department.php';
    ```
@@ -53,10 +55,12 @@ In dieser Anleitung wird beispielhaft eine Taxonomie mit folgenden Angaben hinzu
 5. Es gibt viele verschiedene Arten, diese Taxonomien nun einzusetzen, beispielsweise um Filter zu bauen oder um die Taxonomie in einem View-Template anzuzeigen. Wir schauen uns an, wie wir die Taxonomie anzeigen können. 
 6. Suche im Ordner [backend/getter](/backend/getter) nach dem Getter deines CPT. Dort kannst du mit diesem Code-Snippet die dem einen Eintrag zugewiesenen Taxonomien auslesen:
    ```php
-   $departments = array_map(function ($department) {
-       return $department->name;
-   } ,get_the_terms($id, 'person_department'));
+   $terms = get_the_terms($id, 'person_department');
+   $departments = $terms && !is_wp_error($terms)
+       ? array_map(fn($term) => $term->name, $terms)
+       : [];
    ```
+   `get_the_terms()` gibt `false` zurück, wenn einem Eintrag keine Abteilung zugewiesen ist. Ohne diese Prüfung würde `array_map()` dann abbrechen. Im Theme macht das die Funktion `get_project_categories()` in [backend/getter/_project.php](/backend/getter/_project.php) genauso.
 7. Dieses Array mit allen Taxonomien kann nun im Getter im return zurückgegeben werden und dann wie jede andere Information im View-Template angezeigt werden.
    ```php
    return [
