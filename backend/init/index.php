@@ -155,12 +155,13 @@ add_filter('rest_endpoints', function (array $endpoints) {
     return $endpoints;
 });
 
+// -> priority 1: before redirect_canonical(), which would otherwise redirect ?author=1 to /author/username/ first
 add_action('template_redirect', function () {
     if (is_author() || isset($_GET['author'])) {
         wp_safe_redirect(home_url('/'), 301);
         exit;
     }
-});
+}, 1);
 
 add_filter('wp_sitemaps_add_provider', function ($provider, string $name) {
     return $name === 'users' ? false : $provider;
