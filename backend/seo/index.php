@@ -4,7 +4,7 @@
  * (GEO) in den <head> geschrieben:
  * - <meta name="description"> aus dem Inhalt der Seite, sonst die Standard-Beschreibung aus «Globales»
  * - Open Graph und Twitter Card: Titel, Beschreibung und Bild beim Teilen eines Links
- * - Canonical-Link für die Startseite (bei Seiten und Projekten setzt ihn WordPress selbst)
+ * - Canonical-Link nur für eine Startseite ohne statische Seite (sonst setzt ihn WordPress selbst)
  * - strukturierte Daten als JSON-LD (schema.org): Person, Webseite und Projekte als CreativeWork
  * - noindex für die 404-Seite
  *
@@ -130,7 +130,8 @@ add_action('wp_head', function () {
     <?php if ($description): ?>
         <meta name="description" content="<?= esc_attr($description) ?>">
     <?php endif; ?>
-    <?php if (is_front_page()): ?>
+    <?php // -> bei Seiten und Projekten (auch einer statischen Startseite) setzt WordPress den Canonical selbst, sonst stünde er doppelt ?>
+    <?php if (is_front_page() && !is_singular()): ?>
         <link rel="canonical" href="<?= esc_url($url) ?>">
     <?php endif; ?>
     <meta property="og:type" content="<?= is_singular('project') ? 'article' : 'website' ?>">

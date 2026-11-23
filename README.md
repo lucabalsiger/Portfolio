@@ -255,7 +255,7 @@ Bei `prefers-reduced-motion: reduce` stoppt das CSS die Dauer-Animationen, das S
 - **Beschreibung** (`<meta name="description">`): bei Projekten der Beschrieb, sonst der Untertitel. Bei Seiten der erste Text aus den Modulen. Auf der Startseite und als Fallback die Standard-Beschreibung aus «Globales». Gekürzt auf 155 Zeichen an einer Wortgrenze (`shorten_text()` in `backend/helpers/`).
 - **Open Graph und Twitter Card:** Titel, Beschreibung, URL und Bild für die Vorschau beim Teilen auf WhatsApp, LinkedIn & Co. Als Bild dient das Herobild des Projekts oder das erste Bild aus den Modulen, sonst das Vorschaubild aus «Globales». SVG-Dateien werden übersprungen, weil diese Dienste sie nicht anzeigen.
 - **Strukturierte Daten** (JSON-LD nach schema.org): eine `Person` mit den Socials als `sameAs` auf jeder Seite, dazu `WebSite` auf der Startseite und `CreativeWork` pro Projekt (Titel, Beschreibung, Bild, Jahr, Kategorien). Damit verstehen Suchmaschinen und KI-Suchsysteme (GEO), wer hinter der Seite steht und welche Projekte dazugehören.
-- **Canonical:** setzt WordPress bei Seiten und Projekten selbst, das Theme ergänzt ihn für die Startseite.
+- **Canonical:** setzt WordPress bei Seiten, Projekten und einer statischen Startseite selbst. Das Theme ergänzt ihn nur, falls die Startseite keine einzelne Seite ist, damit er nie doppelt erscheint.
 - **404-Seite:** erhält `noindex`, damit «Seite nicht gefunden» nicht in Suchresultaten auftaucht.
 - **SEO-Plugin:** Ist Yoast, Rank Math, All in One SEO oder SEOPress aktiv, gibt das Theme nichts davon aus, damit nichts doppelt im `<head>` steht.
 
